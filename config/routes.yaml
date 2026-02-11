@@ -3,3 +3,62 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# Front Office - Espace Agriculteur
+agriculteur_dashboard:
+    path: /agriculteur/dashboard
+    controller: App\Controller\Front\AgriculteurController::dashboard
+
+agriculteur_serres:
+    path: /agriculteur/serres
+    controller: App\Controller\Front\AgriculteurController::serres
+
+agriculteur_zones:
+    path: /agriculteur/zones
+    controller: App\Controller\Front\AgriculteurController::zones
+
+agriculteur_serre_details:
+    path: /agriculteur/serre/{id}
+    controller: App\Controller\Front\AgriculteurController::serreDetails
+
+agriculteur_serre_new:
+    path: /agriculteur/serre/new
+    controller: App\Controller\Front\AgriculteurController::newSerre
+
+agriculteur_serre_edit:
+    path: /agriculteur/serre/{id}/edit
+    controller: App\Controller\Front\AgriculteurController::editSerre
+
+agriculteur_serre_delete:
+    path: /agriculteur/serre/{id}/delete
+    controller: App\Controller\Front\AgriculteurController::deleteSerre
+
+agriculteur_zone_new:
+    path: /agriculteur/zone/new
+    controller: App\Controller\Front\AgriculteurController::newZone
+
+agriculteur_zone_edit:
+    path: /agriculteur/zone/{id}/edit
+    controller: App\Controller\Front\AgriculteurController::editZone
+
+agriculteur_zone_delete:
+    path: /agriculteur/zone/{id}/delete
+    controller: App\Controller\Front\AgriculteurController::deleteZone
+
+# Routes API pour les actions rapides admin
+admin_serres_filtered:
+    path: /admin/serres
+    controller: App\Controller\Admin\AdminSerreController::index
+    defaults:
+        etat: null
+
+admin_zones_filtered:
+    path: /admin/zones
+    controller: App\Controller\Admin\AdminZoneController::index
+    defaults:
+        etat: null
+        sans_serre: null
+
+api_serres:
+    path: /api/serres
+    controller: App\Controller\Admin\AdminSerreController::apiSerres

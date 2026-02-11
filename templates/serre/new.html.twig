@@ -1,0 +1,296 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une Serre - AgroSerre{% endblock %}
+
+{% block body %}
+<div class="animate-fade-in">
+    {# En-tête de page #}
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_serre_index') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('app_serre_index') }}">Serres</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Nouvelle serre</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">
+                    <i class="bi bi-plus-circle text-success me-2"></i>Ajouter une Serre
+                </h1>
+                <p class="page-subtitle">Créez une nouvelle serre pour votre exploitation agricole</p>
+            </div>
+            <a href="{{ path('app_serre_index') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i>
+                Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    {# Formulaire #}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clipboard-plus me-2 text-success"></i>
+                        Informations de la serre
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+                    {# Erreurs globales du formulaire #}
+                    {% if form_errors(form) %}
+                        <div class="alert alert-danger d-flex align-items-center mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {{ form_errors(form) }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-4">
+                        {# Nom de la serre #}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.nomSerre, 'Nom de la serre', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-house-door text-muted"></i>
+                                    </span>
+                                    {{ form_widget(form.nomSerre, {'attr': {
+                                        'class': 'form-control form-control-lg' ~ (form.nomSerre.vars.errors|length > 0 ? ' is-invalid' : ''),
+                                        'placeholder': 'Ex: Serre Tomates A1'
+                                    }}) }}
+                                </div>
+                                {{ form_errors(form.nomSerre) }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Donnez un nom unique et descriptif à votre serre
+                                </small>
+                            </div>
+                        </div>
+
+                        {# Localisation #}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.localisation, 'Localisation', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-geo-alt text-muted"></i>
+                                    </span>
+                                    {{ form_widget(form.localisation, {'attr': {
+                                        'class': 'form-control form-control-lg' ~ (form.localisation.vars.errors|length > 0 ? ' is-invalid' : ''),
+                                        'placeholder': 'Ex: Zone Nord'
+                                    }}) }}
+                                </div>
+                                {{ form_errors(form.localisation) }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Indiquez l'emplacement sur votre terrain
+                                </small>
+                            </div>
+                        </div>
+
+                        {# Surface #}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.surface, 'Surface (m²)', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-arrows-angle-expand text-muted"></i>
+                                    </span>
+                                    {{ form_widget(form.surface, {'attr': {
+                                        'class': 'form-control form-control-lg' ~ (form.surface.vars.errors|length > 0 ? ' is-invalid' : ''),
+                                        'placeholder': 'Ex: 500'
+                                    }}) }}
+                                    <span class="input-group-text">m²</span>
+                                </div>
+                                {{ form_errors(form.surface) }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Surface totale en mètres carrés
+                                </small>
+                            </div>
+                        </div>
+
+                        {# État de la serre #}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.etatSerre, 'État de la serre', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-activity text-muted"></i>
+                                    </span>
+                                    {{ form_widget(form.etatSerre, {'attr': {
+                                        'class': 'form-select form-select-lg' ~ (form.etatSerre.vars.errors|length > 0 ? ' is-invalid' : '')
+                                    }}) }}
+                                </div>
+                                {{ form_errors(form.etatSerre) }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Sélectionnez l'état actuel de la serre
+                                </small>
+                            </div>
+                        </div>
+
+                        {# Date de mise en service #}
+                        <div class="col-12">
+                            <div class="form-group">
+                                {{ form_label(form.dateMiseEnService, 'Date de mise en service', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="bi bi-calendar3 text-muted"></i>
+                                    </span>
+                                    {{ form_widget(form.dateMiseEnService, {'attr': {
+                                        'class': 'form-control form-control-lg' ~ (form.dateMiseEnService.vars.errors|length > 0 ? ' is-invalid' : '')
+                                    }}) }}
+                                </div>
+                                {{ form_errors(form.dateMiseEnService) }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Date à laquelle la serre a été ou sera mise en service
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    {# Boutons d'action #}
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <a href="{{ path('app_serre_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-2"></i>
+                            Annuler
+                        </a>
+                        <div class="d-flex gap-2">
+                            <button type="reset" class="btn btn-outline-warning">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                Réinitialiser
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-lg me-2"></i>
+                                Enregistrer la serre
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            {# Conseils #}
+            <div class="card mt-4 border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted mb-3">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        Conseils pour créer une serre
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3 flex-shrink-0">
+                                    <i class="bi bi-1-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <small class="fw-semibold d-block">Nom descriptif</small>
+                                    <small class="text-muted">Utilisez un nom qui indique le contenu ou l'emplacement</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3 flex-shrink-0">
+                                    <i class="bi bi-2-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <small class="fw-semibold d-block">Surface exacte</small>
+                                    <small class="text-muted">Mesurez précisément pour optimiser l'espace</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3 flex-shrink-0">
+                                    <i class="bi bi-3-circle text-success"></i>
+                                </div>
+                                <div>
+                                    <small class="fw-semibold d-block">Date de référence</small>
+                                    <small class="text-muted">La date aide au suivi et à la planification</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    /* Styles spécifiques au formulaire */
+    .form-label {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
+    }
+
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: var(--danger-color);
+    }
+
+    .input-group-text {
+        border: 2px solid var(--border-color);
+        border-right: none;
+        border-radius: 0.5rem 0 0 0.5rem;
+    }
+
+    .input-group .form-control,
+    .input-group .form-select {
+        border-left: none;
+        border-radius: 0 0.5rem 0.5rem 0;
+    }
+
+    .input-group .form-control:focus,
+    .input-group .form-select:focus {
+        border-left: none;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .alert {
+        border: none;
+        border-radius: 0.75rem;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+
+    .btn-lg {
+        padding: 0.875rem 1.5rem;
+    }
+
+    hr {
+        border-color: var(--border-color);
+        opacity: 1;
+    }
+</style>
+{% endblock %}

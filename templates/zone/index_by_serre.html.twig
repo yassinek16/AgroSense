@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Zones de la serre {{ serre.nomSerre }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-th-large text-success me-2"></i>Zones de : {{ serre.nomSerre }}</h1>
+        <a href="{{ path('app_serre_show', {'id': serre.id}) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left"></i> Retour à la serre
+        </a>
+    </div>
+
+    <div class="row">
+        {% for zone in zones %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">Zone #{{ zone.id }}</h5>
+                        <hr>
+                        <p class="card-text">
+                            <strong>Type :</strong> {{ zone.typeZone|default('Non spécifié') }}<br>
+                            <strong>Superficie :</strong> {{ zone.superficie }} m²
+                        </p>
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <a href="{{ path('app_zone_show', {'id': zone.id}) }}" class="btn btn-sm btn-outline-success w-100">
+                            Détails de la zone
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Aucune zone n'est encore enregistrée pour cette serre.</p>
+                <a href="{{ path('app_zone_new', {'serre_id': serre.id}) }}" class="btn btn-success">
+                    Ajouter une première zone
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

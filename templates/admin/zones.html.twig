@@ -1,0 +1,98 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Zones - Administration{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>📏 Gestion des Zones</h1>
+        <a href="{{ path('app_admin_zones_new') }}" class="btn-admin">
+            <i class="bi bi-plus-lg"></i>
+            Nouvelle Zone
+        </a>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <div class="row">
+            <div class="col">Nom</div>
+            <div class="col">Type</div>
+            <div class="col">Superficie</div>
+            <div class="col">État</div>
+            <div class="col">Serre</div>
+            <div class="col">Actions</div>
+        </div>
+    </div>
+
+    <div class="table-body">
+        {% for zone in zones %}
+            <div class="activity-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ zone.nomZone }}</strong>
+                        <div class="text-muted small">{{ zone.typeZone }}</div>
+                    </div>
+                    <div>
+                        <span class="badge bg-info">{{ zone.superficie }} m²</span>
+                    </div>
+                    <div>
+                        <span class="badge bg-{{ zone.etatZone == 'active' ? 'success' : 'secondary' }}">
+                            {{ zone.etatZone|capitalize }}
+                        </span>
+                    </div>
+                    <div>
+                        {% if zone.serre %}
+                            <a href="{{ path('app_admin_serres') }}" class="badge bg-primary text-decoration-none">
+                                {{ zone.serre.nomSerre }}
+                            </a>
+                        {% else %}
+                            <span class="badge bg-secondary">Non assignée</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <small class="text-muted">
+                            {{ zone.cultureAssociee ?: 'Non définie' }}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_admin_edit_zone', {'id': zone.id}) }}" class="btn-admin btn-sm">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{{ path('app_admin_delete_zone', {'id': zone.id}) }}" 
+                           class="btn-admin btn-sm btn-danger"
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette zone ?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                Aucune zone trouvée
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <h5>📊 Statistiques des Zones</h5>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>📏 Total</h3>
+            <div class="number">{{ zones|length }}</div>
+            <div class="label">Zones</div>
+        </div>
+        <div class="stat-card">
+            <h3>✅ Actives</h3>
+            <div class="number">{{ zones|filter(z => z.etatZone == 'active')|length }}</div>
+            <div class="label">Actives</div>
+        </div>
+        <div class="stat-card">
+            <h3>📏 Surface Totale</h3>
+            <div class="number">{{ zones|reduce((sum, z) => sum + z.superficie, 0) }} m²</div>
+            <div class="label">m²</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

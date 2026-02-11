@@ -1,0 +1,44 @@
+# config/routes.yaml
+admin_dashboard:
+    path: /admin/
+    controller: App\Controller\Admin\AdminDashboardController::dashboard
+
+admin_serres:
+    path: /admin/serres
+    controller: App\Controller\Admin\AdminSerreController::serres
+
+admin_serre_details:
+    path: /admin/serres/{id}/details
+    controller: App\Controller\Admin\AdminSerreController::serreDetails
+
+admin_toggle_serre:
+    path: /admin/serres/{id}/toggle-state
+    controller: App\Controller\Admin\AdminSerreController::toggleSerreState
+
+admin_delete_serre:
+    path: /admin/serres/{id}/delete
+    controller: App\Controller\Admin\AdminSerreController::deleteSerre
+
+admin_zones:
+    path: /admin/zones
+    controller: App\Controller\Admin\AdminZoneController::zones
+
+admin_zone_details:
+    path: /admin/zones/{id}/details
+    controller: App\Controller\Admin\AdminZoneController::zoneDetails
+
+admin_toggle_zone:
+    path: /admin/zones/{id}/toggle-state
+    controller: App\Controller\Admin\AdminZoneController::toggleZoneState
+
+admin_delete_zone:
+    path: /admin/zones/{id}/delete
+    controller: App\Controller\Admin\AdminZoneController::deleteZone
+
+admin_settings:
+    path: /admin/settings
+    controller: App\Controller\Admin\AdminSettingsController::settings
+
+admin_settings_init:
+    path: /admin/settings/init
+    controller: App\Controller\Admin\AdminSettingsController::initSettings

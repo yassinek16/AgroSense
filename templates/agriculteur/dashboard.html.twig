@@ -1,0 +1,309 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Tableau de Bord - Espace Agriculteur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>� Tableau de bord Agriculteur</h1>
+        <p>Vision rapide et gestion de votre exploitation</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Alertes Visuelles -->
+    {% if alertes|length > 0 %}
+        <div class="row mb-4">
+            {% for alerte in alertes %}
+                <div class="col-12">
+                    <div class="alerte-card">
+                        <span class="alerte-icon">{{ alerte.icon }}</span>
+                        <div>
+                            <strong>{{ alerte.message }}</strong>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ stats.totalSerres }}</div>
+            <div class="label">🏠 Total Serres</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.totalZones }}</div>
+            <div class="label">📏 Total Zones</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.surfaceTotale }} m²</div>
+            <div class="label">📐 Surface Totale</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.serresActives }}</div>
+            <div class="label">✅ Serres Actives</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.zonesActives }}</div>
+            <div class="label">🌱 Zones Actives</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.serresEnMaintenance }}</div>
+            <div class="label">🔧 En Maintenance</div>
+        </div>
+    </div>
+
+    <!-- Actions Rapides -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>⚡ Actions Rapides</h5>
+            <small class="text-muted">Gérez votre exploitation en un clic</small>
+        </div>
+        <div class="p-3">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="{{ path('app_agriculteur_serre_new') }}" class="btn btn-success w-100">
+                        <i class="bi bi-plus-lg"></i>
+                         Ajouter une serre
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('app_agriculteur_zone_new') }}" class="btn btn-success w-100">
+                        <i class="bi bi-plus-lg"></i>
+                         Ajouter une zone
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('app_agriculteur_serres') }}" class="btn btn-success w-100">
+                        <i class="bi bi-house"></i>
+                         Voir les serres
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('app_agriculteur_zones') }}" class="btn btn-success w-100">
+                        <i class="bi bi-grid-3x3"></i>
+                         Voir les zones
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini Historique -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>📋 Mini Historique</h5>
+        </div>
+        <div class="p-3">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="historique-item">
+                        <div class="historique-icon">🏠</div>
+                        <div class="historique-content">
+                            <div class="historique-label">Dernière serre créée</div>
+                            <div class="historique-value">
+                                {% if historique.derniereSerre %}
+                                    {{ historique.derniereSerre.nomSerre }}
+                                    <small>({{ historique.derniereSerre.dateMiseEnService|date('d/m/Y') }})</small>
+                                {% else %}
+                                    Aucune serre
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="historique-item">
+                        <div class="historique-icon">📏</div>
+                        <div class="historique-content">
+                            <div class="historique-label">Dernière zone créée</div>
+                            <div class="historique-value">
+                                {% if historique.derniereZone %}
+                                    {{ historique.derniereZone.nomZone }}
+                                    <small>({{ historique.derniereZone.id }})</small>
+                                {% else %}
+                                    Aucune zone
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="historique-item">
+                        <div class="historique-icon">🔄</div>
+                        <div class="historique-content">
+                            <div class="historique-label">Dernière modification</div>
+                            <div class="historique-value">
+                                {% if historique.derniereModification %}
+                                    {% if historique.derniereModification.dateMiseEnService is defined %}
+                                        {{ historique.derniereModification.nomSerre ?? historique.derniereModification.nomZone }}
+                                        <small>({{ historique.derniereModification.dateMiseEnService|date('d/m/Y') }})</small>
+                                    {% else %}
+                                        {{ historique.derniereModification.nomSerre ?? historique.derniereModification.nomZone }}
+                                        <small>(Zone)</small>
+                                    {% endif %}
+                                {% else %}
+                                    Aucune modification
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Serres Overview -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>🏠 Vue d'Ensemble des Serres</h5>
+                </div>
+                <div class="p-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6>📊 Répartition par État</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar bg-success" style="width: {{ (stats.serresActives / stats.totalSerres * 100)|round }}%">
+                                    Actives: {{ stats.serresActives }}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ (stats.serresActives / stats.totalSerres * 100)|round }}% des serres sont actives</small>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>📏 Répartition des Zones</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar bg-info" style="width: {{ (stats.zonesActives / stats.totalZones * 100)|round }}%">
+                                    Actives: {{ stats.zonesActives }}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ (stats.zonesActives / stats.totalZones * 100)|round }}% des zones sont actives</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>🌾 Aide Décision</h5>
+                </div>
+                <div class="p-3">
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-lightbulb"></i> Recommandations</h6>
+                        <ul class="mb-0">
+                            {% if stats.serresEnMaintenance > 0 %}
+                                <li>{{ stats.serresEnMaintenance }} serre(s) en maintenance</li>
+                            {% endif %}
+                            {% if stats.surfaceTotale > 0 %}
+                                <li>{{ stats.surfaceTotale }}m² de surface exploitée</li>
+                            {% endif %}
+                            {% if stats.zonesActives < stats.totalZones %}
+                                <li>{{ stats.totalZones - stats.zonesActives }} zone(s) inactive(s)</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Serres -->
+    {% if serres|length > 0 %}
+        <div class="content-card mt-4">
+            <div class="card-header">
+                <h5>🏠 Vos Serres Récentes</h5>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Localisation</th>
+                            <th>Surface</th>
+                            <th>État</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for serre in serres|slice(0, 5) %}
+                            <tr>
+                                <td>
+                                    <strong>{{ serre.nomSerre }}</strong>
+                                </td>
+                                <td>
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ serre.localisation }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ serre.surface }} m²</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ serre.etatSerre == 'actif' ? 'success' : serre.etatSerre == 'maintenance' ? 'warning' : 'secondary' }}">
+                                        {{ serre.etatSerre|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_agriculteur_serre_details', {'id': serre.id}) }}" 
+                                           class="btn btn-sm btn-primary" title="Voir les détails">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_agriculteur_serre_edit', {'id': serre.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if serres|length > 5 %}
+                <div class="p-3 text-center">
+                    <a href="{{ path('app_agriculteur_serres') }}" class="btn btn-outline-primary">
+                        Voir toutes les serres ({{ serres|length - 5 }} supplémentaires)
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="content-card mt-4">
+            <div class="text-center py-5">
+                <div style="font-size: 4rem;">🌱</div>
+                <h5 class="mt-3 text-success">Bienvenue dans votre exploitation !</h5>
+                <p class="text-muted">Prêt à démarrer ? Créez votre première serre pour commencer à cultiver.</p>
+                <div class="mt-4">
+                    <a href="{{ path('app_agriculteur_serre_new') }}" class="btn btn-success btn-lg me-2">
+                        <i class="bi bi-plus-lg"></i>
+                        ➕ Créer ma première serre
+                    </a>
+                    <a href="{{ path('app_agriculteur_zone_new') }}" class="btn btn-outline-success">
+                        <i class="bi bi-info-circle"></i>
+                        En savoir plus
+                    </a>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-lightbulb"></i>
+                        Conseil : Une serre vous permettra d'organiser vos cultures par zones
+                    </small>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Supervision des Zones - Administration{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>📏 Supervision des Zones</h1>
+        <p>Consultation des zones du système</p>
+        
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Incoherences Alert -->
+    {% if incoherences|length > 0 %}
+        <div class="alert alert-warning">
+            <h6><i class="bi bi-exclamation-triangle"></i> Incohérences détectées</h6>
+            {% for incoherence in incoherences %}
+                <div class="mb-2">
+                    <strong>{{ incoherence.type|title }}:</strong> {{ incoherence.message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ stats.total }}</div>
+            <div class="label">📏 Zones Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.active }}</div>
+            <div class="label">✅ Zones Actives</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.surface }} m²</div>
+            <div class="label">📐 Surface Totale</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.incoherences }}</div>
+            <div class="label">⚠️ Incohérences</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="etat" class="form-label">Filtrer par état</label>
+                <select id="etat" name="etat" class="form-control">
+                    <option value="">Tous les états</option>
+                    <option value="active" {{ filterEtat == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ filterEtat == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="maintenance" {{ filterEtat == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="serre" class="form-label">Filtrer par serre</label>
+                <select id="serre" name="serre" class="form-control">
+                    <option value="">Toutes les serres</option>
+                    {% for serre in serres %}
+                        <option value="{{ serre.id }}" {{ filterSerre == serre.id ? 'selected' : '' }}>
+                            {{ serre.nomSerre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+                </button>
+                <a href="{{ path('app_admin_zones') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Réinitialiser
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Zones Table -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5>📋 Liste des Zones</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Superficie</th>
+                        <th>Culture</th>
+                        <th>État</th>
+                        <th>Serre Parente</th>
+                        
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for zone in zones %}
+                        <tr>
+                            <td>
+                                <strong>{{ zone.nomZone }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ zone.typeZone }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ zone.superficie }} m²</span>
+                                {% if zone.serre and zone.superficie > zone.serre.surface %}
+                                    <br><small class="text-danger">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        Supérieure à la serre
+                                    </small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ zone.cultureAssociee ?: '<span class="text-muted">Non définie</span>'|raw }}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ zone.etatZone == 'active' ? 'success' : 'secondary' }}">
+                                    {{ zone.etatZone|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if zone.serre %}
+                                    <a href="{{ path('app_admin_serre_details', {'id': zone.serre.id}) }}" 
+                                       class="badge bg-success text-decoration-none">
+                                        {{ zone.serre.nomSerre }}
+                                    </a>
+                                    <br><small class="text-muted">{{ zone.serre.surface }} m²</small>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i>
+                                        Non assignée
+                                    </span>
+                                {% endif %}
+                            </td>
+                           
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('app_admin_zone_details', {'id': zone.id }) }}" 
+                                       class="btn btn-sm btn-primary" title="Voir les détails">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                   
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                <i class="bi bi-grid-3x3" style="font-size: 2rem;"></i>
+                                <p>Aucune zone trouvée</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

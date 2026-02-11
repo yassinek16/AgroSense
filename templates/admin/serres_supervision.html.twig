@@ -1,0 +1,158 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Supervision des Serres - Administration{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>🏠 Supervision des Serres</h1>
+        <p>Consultation des serres du système </p>
+      
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ stats.total }}</div>
+            <div class="label">🏠 Serres Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.active }}</div>
+            <div class="label">✅ Serres Actives</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.maintenance }}</div>
+            <div class="label">🔧 En Maintenance</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.surface }} m²</div>
+            <div class="label">📐 Surface Totale</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="etat" class="form-label">Filtrer par état</label>
+                <select id="etat" name="etat" class="form-control">
+                    <option value="">Tous les états</option>
+                    <option value="actif" {{ filterEtat == 'actif' ? 'selected' : '' }}>Actif</option>
+                    <option value="maintenance" {{ filterEtat == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                    <option value="inactive" {{ filterEtat == 'inactive' ? 'selected' : '' }}>Inactif</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="user" class="form-label">Filtrer par agriculteur</label>
+                <select id="user" name="user" class="form-control">
+                    <option value="">Tous les agriculteurs</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {{ filterUser == user.id ? 'selected' : '' }}>
+                            {{ user.nom }} {{ user.prenom }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+                </button>
+                <a href="{{ path('app_admin_serres') }}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i>
+                    Réinitialiser
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Serres Table -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5>📋 Liste des Serres</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Localisation</th>
+                        <th>Surface</th>
+                        <th>État</th>
+                        <th>Date Mise en Service</th>
+                        <th>Nombre de Zones</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for serre in serres %}
+                        <tr>
+                            <td>
+                                <strong>{{ serre.nomSerre }}</strong>
+                            </td>
+                            <td>
+                                <i class="bi bi-geo-alt"></i>
+                                {{ serre.localisation }}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ serre.surface }} m²</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ serre.etatSerre == 'actif' ? 'success' : serre.etatSerre == 'maintenance' ? 'warning' : 'secondary' }}">
+                                    {{ serre.etatSerre|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if serre.dateMiseEnService %}
+                                    {{ serre.dateMiseEnService|date('d/m/Y') }}
+                                {% else %}
+                                    <span class="text-muted">Non définie</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set zoneCount = serre.zones|length %}
+                                <span class="badge bg-primary">{{ zoneCount }}</span>
+                                {% if zoneCount > 5 %}
+                                    <small class="text-warning">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        Beaucoup de zones
+                                    </small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('app_admin_serre_details', {'id': serre.id}) }}" 
+                                       class="btn btn-sm btn-primary" title="Voir les détails">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                  
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">
+                                <i class="bi bi-house-slash" style="font-size: 2rem;"></i>
+                                <p>Aucune serre trouvée</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

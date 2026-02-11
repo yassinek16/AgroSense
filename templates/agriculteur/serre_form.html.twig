@@ -1,0 +1,123 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}{{ action }} une Serre{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="page-header">
+        <h1>🌱 {{ action }} une Serre</h1>
+    </div>
+
+    <div class="content-card p-4">
+
+        <form method="post" novalidate class="row g-3">
+
+            {# NOM SERRE #}
+            <div class="col-md-6">
+                <label class="form-label">Nom de la serre</label>
+                <input type="text"
+                       name="nomSerre"
+                       class="form-control"
+                       value="{{ serre ? serre.nomSerre : '' }}">
+
+                {% for error in errors %}
+                    {% if error.propertyPath == 'nomSerre' %}
+                        <div class="text-danger small mt-1">
+                            {{ error.message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {# LOCALISATION #}
+            <div class="col-md-6">
+                <label class="form-label">Localisation</label>
+                <input type="text"
+                       name="localisation"
+                       class="form-control"
+                       value="{{ serre ? serre.localisation : '' }}">
+
+                {% for error in errors %}
+                    {% if error.propertyPath == 'localisation' %}
+                        <div class="text-danger small mt-1">
+                            {{ error.message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {# SURFACE #}
+            <div class="col-md-4">
+                <label class="form-label">Surface (m²)</label>
+                <input type="number"
+                       name="surface"
+                       class="form-control"
+                       value="{{ serre ? serre.surface : '' }}">
+
+                {% for error in errors %}
+                    {% if error.propertyPath == 'surface' %}
+                        <div class="text-danger small mt-1">
+                            {{ error.message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {# ETAT #}
+            <div class="col-md-4">
+                <label class="form-label">État</label>
+                <select name="etatSerre" class="form-control">
+                    <option value="">Choisir</option>
+                    <option value="actif" {{ serre and serre.etatSerre == 'actif' ? 'selected' : '' }}>
+                        Actif
+                    </option>
+                    <option value="maintenance" {{ serre and serre.etatSerre == 'maintenance' ? 'selected' : '' }}>
+                        Maintenance
+                    </option>
+                    <option value="inactif" {{ serre and serre.etatSerre == 'inactif' ? 'selected' : '' }}>
+                        Inactif
+                    </option>
+                </select>
+
+                {% for error in errors %}
+                    {% if error.propertyPath == 'etatSerre' %}
+                        <div class="text-danger small mt-1">
+                            {{ error.message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {# DATE #}
+            <div class="col-md-4">
+                <label class="form-label">Date de mise en service</label>
+                <input type="date"
+                       name="dateMiseEnService"
+                       class="form-control"
+                       value="{{ serre and serre.dateMiseEnService ? serre.dateMiseEnService|date('Y-m-d') : '' }}">
+
+                {% for error in errors %}
+                    {% if error.propertyPath == 'dateMiseEnService' %}
+                        <div class="text-danger small mt-1">
+                            {{ error.message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="col-12 text-end mt-4">
+                <a href="{{ path('app_agriculteur_serres') }}"
+                   class="btn btn-outline-secondary me-2">
+                    Annuler
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    {{ action }}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

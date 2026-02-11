@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Serres - AgroSerre{% endblock %}
+
+{% block body %}
+<div class="animate-fade-in container mt-4">
+    {# En-tête de page #}
+    <div class="page-header mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0">
+                <li class="breadcrumb-item"><a href="{{ path('app_serre_index') }}" class="text-success text-decoration-none">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Serres</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title h2">
+                    <i class="bi bi-house-door text-success me-2"></i>Liste des Serres
+                </h1>
+                <p class="text-muted">Gérez et surveillez toutes vos serres agricoles</p>
+            </div>
+            <a href="{{ path('app_serre_new') }}" class="btn btn-success shadow-sm">
+                <i class="bi bi-plus-lg"></i> Nouvelle Serre
+            </a>
+        </div>
+    </div>
+
+    {# Statistiques rapides #}
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                        <i class="bi bi-house-door fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="h4 mb-0 fw-bold">{{ serres|length }}</div>
+                        <div class="small text-muted">Serres au total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                        <i class="bi bi-check-circle fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="h4 mb-0 fw-bold">{{ serres|filter(s => s.etatSerre == 'culturelle')|length }}</div>
+                        <div class="small text-muted">En culture</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
+                        <i class="bi bi-geo-alt fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="h4 mb-0 fw-bold">{{ serres|map(s => s.localisation)|reduce((unique, item) => item in unique ? unique : unique|merge([item]), [])|length }}</div>
+                        <div class="small text-muted">Localisations</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Barre de Recherche Dynamique #}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" action="{{ path('app_serre_index') }}" class="row g-2">
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="q" value="{{ searchTerm|default('') }}" class="form-control border-start-0" placeholder="Rechercher par nom ou localisation...">
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-success flex-grow-1">Filtrer</button>
+                    {% if searchTerm is defined and searchTerm is not empty %}
+                        <a href="{{ path('app_serre_index') }}" class="btn btn-outline-secondary">X</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Tableau des serres #}
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4" style="width: 80px;">
+                            <a href="{{ path('app_serre_index', {sort: 'id', direction: currentDirection|default('ASC') == 'ASC' ? 'DESC' : 'ASC', q: searchTerm|default('')}) }}" class="text-dark text-decoration-none">
+                                # <i class="bi bi-arrow-down-up small"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ path('app_serre_index', {sort: 'nomSerre', direction: currentDirection|default('ASC') == 'ASC' ? 'DESC' : 'ASC', q: searchTerm|default('')}) }}" class="text-dark text-decoration-none">
+                                Nom de la Serre <i class="bi bi-arrow-down-up small"></i>
+                            </a>
+                        </th>
+                        <th>Localisation</th>
+                        <th>
+                            <a href="{{ path('app_serre_index', {sort: 'surface', direction: currentDirection|default('ASC') == 'ASC' ? 'DESC' : 'ASC', q: searchTerm|default('')}) }}" class="text-dark text-decoration-none">
+                                Surface <i class="bi bi-arrow-down-up small"></i>
+                            </a>
+                        </th>
+                        <th>État</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for serre in serres %}
+                    <tr>
+                        <td class="ps-4 text-muted">{{ serre.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-opacity-10 rounded p-2 me-3">
+                                    <i class="bi bi-house-door text-success"></i>
+                                </div>
+                                <span class="fw-bold text-dark">{{ serre.nomSerre }}</span>
+                            </div>
+                        </td>
+                        <td><i class="bi bi-geo-alt text-muted me-1"></i>{{ serre.localisation }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ serre.surface }} m²</span></td>
+                        <td>
+                            {% if serre.etatSerre == 'culturelle' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3">
+                                    <i class="bi bi-check-circle me-1"></i>En culture
+                                </span>
+                            {% elseif serre.etatSerre == 'maintenance' %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3">
+                                    <i class="bi bi-tools me-1"></i>Maintenance
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3">
+                                    <i class="bi bi-pause-circle me-1"></i>{{ serre.etatSerre|capitalize }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group shadow-sm">
+                                <a href="{{ path('app_serre_show', {'id': serre.id}) }}" class="btn btn-white btn-sm border" title="Voir">
+                                    <i class="bi bi-eye text-primary"></i>
+                                </a>
+                                <a href="{{ path('app_serre_edit', {'id': serre.id}) }}" class="btn btn-white btn-sm border" title="Modifier">
+                                    <i class="bi bi-pencil text-warning"></i>
+                                </a>
+                                <form method="post" action="{{ path('app_serre_delete', {'id': serre.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette serre ?');">
+                                    <button type="submit" class="btn btn-white btn-sm border" title="Supprimer">
+                                        <i class="bi bi-trash text-danger"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                            <p class="text-muted">Aucune serre trouvée pour votre recherche.</p>
+                            <a href="{{ path('app_serre_index') }}" class="btn btn-link text-success">Voir toutes les serres</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# Footer Info #}
+    {% if serres|length > 0 %}
+    <div class="d-flex justify-content-between align-items-center mt-4 pb-5">
+        <p class="text-muted small mb-0">
+            Affichage de <strong>{{ serres|length }}</strong> serre{{ serres|length > 1 ? 's' : '' }}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

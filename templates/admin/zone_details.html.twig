@@ -1,0 +1,330 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Détails de la Zone - Administration{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>📏 Détails de la Zone</h1>
+        <p>Consultation des informations de la zone</p>
+        <div class="mt-3">
+            <a href="{{ path('app_admin_zones') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i>
+                Retour à la supervision
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Zone Details -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>📋 Informations de la Zone</h5>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Nom de la zone</label>
+                        <div class="detail-value">{{ zone.nomZone }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Type de zone</label>
+                        <div class="detail-value">
+                            <span class="badge bg-secondary">{{ zone.typeZone|title }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Superficie</label>
+                        <div class="detail-value">
+                            <span class="badge bg-info">{{ zone.superficie }} m²</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">État actuel</label>
+                        <div class="detail-value">
+                            <span class="badge bg-{{ zone.etatZone == 'active' ? 'success' : 'secondary' }}">
+                                {{ zone.etatZone|title }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Culture associée</label>
+                        <div class="detail-value">
+                            {% if zone.cultureAssociee %}
+                                {{ zone.cultureAssociee }}
+                            {% else %}
+                                <span class="text-muted">Aucune culture définie</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Serre parente</label>
+                        <div class="detail-value">
+                            {% if zone.serre %}
+                                <a href="{{ path('app_admin_serre_details', {'id': zone.serre.id}) }}" class="text-decoration-none">
+                                    <i class="bi bi-house-door"></i>
+                                    {{ zone.serre.nomSerre }}
+                                    <small>({{ zone.serre.localisation }})</small>
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Aucune serre associée</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Serre Parente -->
+    {% if zone.serre %}
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>🏠 Serre Parente</h5>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Nom de la serre</label>
+                        <div class="detail-value">{{ zone.serre.nomSerre }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Localisation</label>
+                        <div class="detail-value">
+                            <i class="bi bi-geo-alt"></i>
+                            {{ zone.serre.localisation }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">Surface totale de la serre</label>
+                        <div class="detail-value">
+                            <span class="badge bg-info">{{ zone.serre.surface }} m²</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <label class="detail-label">État de la serre</label>
+                        <div class="detail-value">
+                            <span class="badge bg-{{ zone.serre.etatSerre == 'actif' ? 'success' : zone.serre.etatSerre == 'maintenance' ? 'warning' : 'secondary' }}">
+                                {{ zone.serre.etatSerre|title }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Autres Zones de la Serre -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>📏 Autres Zones dans cette Serre</h5>
+            <small class="text-muted">{{ zone.serre.zones|length - 1 }} autre(s) zone(s)</small>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Superficie</th>
+                        <th>Culture</th>
+                        <th>État</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for otherZone in zone.serre.zones %}
+                        {% if otherZone.id != zone.id %}
+                        <tr>
+                            <td>
+                                <strong>{{ otherZone.nomZone }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ otherZone.typeZone|title }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ otherZone.superficie }} m²</span>
+                            </td>
+                            <td>
+                                {% if otherZone.cultureAssociee %}
+                                    {{ otherZone.cultureAssociee }}
+                                {% else %}
+                                    <span class="text-muted">Aucune</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ otherZone.etatZone == 'active' ? 'success' : 'secondary' }}">
+                                    {{ otherZone.etatZone|title }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                <i class="bi bi-grid-3x3" style="font-size: 2rem;"></i>
+                                <p>Aucune autre zone dans cette serre</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>📊 Statistiques d'Utilisation</h5>
+        </div>
+        <div class="p-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ zone.superficie }} m²</div>
+                        <div class="stat-label">Surface de cette zone</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% set surfaceAutresZones = zone.serre.zones|reduce((sum, z) => z.id != zone.id ? sum + z.superficie : sum, 0) %}
+                    <div class="stat-item">
+                        <div class="stat-number">{{ surfaceAutresZones }} m²</div>
+                        <div class="stat-label">Autres zones</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% set surfaceTotaleUtilisee = zone.serre.zones|reduce((sum, z) => sum + z.superficie, 0) %}
+                    <div class="stat-item">
+                        <div class="stat-number">{{ surfaceTotaleUtilisee }} m²</div>
+                        <div class="stat-label">Total utilisé</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ zone.serre.surface }} m²</div>
+                        <div class="stat-label">Surface serre</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% set surfaceRestante = zone.serre.surface - surfaceTotaleUtilisee %}
+                    <div class="stat-item">
+                        <div class="stat-number">{{ surfaceRestante }} m²</div>
+                        <div class="stat-label">Surface restante</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% set pourcentageUtilise = (surfaceTotaleUtilisee / zone.serre.surface) * 100 %}
+                    <div class="stat-item">
+                        <div class="stat-number">{{ pourcentageUtilise|round(1) }}%</div>
+                        <div class="stat-label">Taux d'utilisation</div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if surfaceRestante < 0 %}
+                <div class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Incohérence détectée :</strong> La surface totale des zones ({{ surfaceTotaleUtilisee }} m²) dépasse la surface de la serre ({{ zone.serre.surface }} m²).
+                </div>
+            {% elseif surfaceRestante == 0 %}
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle"></i>
+                    <strong>Optimisation parfaite :</strong> Toute la surface de la serre est utilisée.
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Surface disponible :</strong> {{ surfaceRestante }} m² restants dans la serre.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Zone sans Serre -->
+    {% if not zone.serre %}
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>⚠️ Zone Orpheline</h5>
+        </div>
+        <div class="p-4">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Zone sans serre associée :</strong> Cette zone n'est attachée à aucune serre. 
+                Cela peut indiquer une incohérence dans les données.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.detail-item {
+    margin-bottom: 1.5rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.detail-value {
+    font-size: 1.1rem;
+    color: var(--dark);
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: 8px;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+}
+</style>
+{% endblock %}

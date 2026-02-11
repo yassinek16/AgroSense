@@ -1,0 +1,200 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Mes Zones - Espace Agriculteur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>📏 Mes Zones</h1>
+        <p>Gérez vos zones de culture</p>
+        <div class="mt-3">
+            <a href="{{ path('app_agriculteur_zone_new') }}" class="btn btn-success">
+                <i class="bi bi-plus-lg"></i>
+                Créer une Nouvelle Zone
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Filters Section -->
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="form-label">🔍 Recherche</label>
+                <input type="text" 
+                       id="search" 
+                       name="search" 
+                       class="form-control" 
+                       value="{{ search }}"
+                       placeholder="Nom ou culture">
+            </div>
+            <div class="col-md-3">
+                <label for="etat" class="form-label">📊 État</label>
+                <select id="etat" name="etat" class="form-control">
+                    <option value="">Tous les états</option>
+                    <option value="active" {{ etat == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ etat == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="sort" class="form-label">🔄 Tri</label>
+                <select id="sort" name="sort" class="form-control">
+                    <option value="nom" {{ sortBy == 'nom' ? 'selected' : '' }}>Nom (A-Z)</option>
+                    <option value="superficie" {{ sortBy == 'superficie' ? 'selected' : '' }}>Superficie (décroissant)</option>
+                    <option value="culture" {{ sortBy == 'culture' ? 'selected' : '' }}>Culture (A-Z)</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Zones List -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5>📋 Liste des Zones</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Superficie</th>
+                        <th>Culture</th>
+                        <th>Serre</th>
+                        <th>État</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if zones|length > 0 %}
+                        {% for zone in zones %}
+                            <tr>
+                                <td>
+                                    <strong>{{ zone.nomZone }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ zone.typeZone }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ zone.superficie }} m²</span>
+                                </td>
+                                <td>
+                                    {% if zone.cultureAssociee %}
+                                        <span class="badge bg-success">{{ zone.cultureAssociee }}</span>
+                                    {% else %}
+                                        <span class="text-muted">Non définie</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if zone.serre %}
+                                        <a href="{{ path('app_agriculteur_serre_details', {'id': zone.serre.id}) }}" 
+                                           class="text-decoration-none">
+                                            <span class="badge bg-secondary">{{ zone.serre.nomSerre }}</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">Non assignée</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ zone.etatZone == 'active' ? 'success' : 'secondary' }}">
+                                        {{ zone.etatZone|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_agriculteur_zone_edit', {'id': zone.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDeleteZone({{ zone.id }}, '{{ zone.nomZone }}')"
+                                                title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="bi bi-grid-3x3" style="font-size: 2rem; color: #ccc;"></i>
+                                <h5 class="mt-3">Aucune zone trouvée</h5>
+                                <p class="text-muted">
+                                    {% if search or etat %}
+                                        Essayez de modifier vos filtres de recherche
+                                    {% else %}
+                                        Commencez par créer votre première zone
+                                    {% endif %}
+                                </p>
+                                {% if not search and not etat %}
+                                    <a href="{{ path('app_agriculteur_zone_new') }}" class="btn btn-success">
+                                        <i class="bi bi-plus-lg"></i>
+                                        Créer une Zone
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    {% if zones|length > 0 %}
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="number">{{ zones|length }}</div>
+                    <div class="label">📏 Total Zones</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="number">{{ zones|filter(z => z.etatZone == 'active')|length }}</div>
+                    <div class="label">✅ Actives</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="number">{{ zones|reduce((sum, z) => sum + z.superficie, 0) }} m²</div>
+                    <div class="label">📐 Surface Totale</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="number">{{ nbSerresUtilisees }}</div>
+                    <div class="label">🏠 Serres Utilisées</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript -->
+<script>
+function confirmDeleteZone(zoneId, zoneName) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la zone "${zoneName}" ? Cette action est irréversible.`)) {
+        window.location.href = `/agriculteur/zone/${zoneId}/delete`;
+    }
+}
+</script>
+{% endblock %}

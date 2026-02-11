@@ -1,0 +1,67 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Supprimer une Serre - Espace Agriculteur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+ 
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Confirmation Card -->
+    <div class="content-card">
+        <div class="card-header bg-danger text-white">
+            <h5>� Confirmation de Suppression</h5>
+        </div>
+        <div class="p-4">
+            <div class="alert alert-warning">
+                <h6><i class="bi bi-exclamation-triangle"></i> Êtes-vous sûr ?</h6>
+                <p>Vous êtes sur le point de supprimer la serre <strong>"{{ serre.nomSerre }}"</strong></p>
+                <ul class="mb-0">
+                    <li>Cette action est <strong>irréversible</strong></li>
+                    <li>Toutes les zones associées seront supprimées</li>
+                    <li>{{ serre.zones|length }} zone(s) sera(ont) supprimée(s)</li>
+                </ul>
+            </div>
+
+            <!-- Serre Info Simple -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <strong>🏠 Nom:</strong><br>
+                    {{ serre.nomSerre }}
+                </div>
+                <div class="col-md-4">
+                    <strong>📍 Localisation:</strong><br>
+                    {{ serre.localisation }}
+                </div>
+                <div class="col-md-4">
+                    <strong>📐 Surface:</strong><br>
+                    {{ serre.surface }} m²
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="post">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('app_agriculteur_serre_details', {'id': serre.id}) }}" class="btn btn-secondary">
+                        <i class="bi bi-x-lg"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}{{ action }} une Zone - Espace Agriculteur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>📏 {{ action }} une Zone</h1>
+        <p>
+            {% if zone %}
+                Modifier les informations de la zone "{{ zone.nomZone }}"
+            {% else %}
+                Créer une nouvelle zone dans votre exploitation
+            {% endif %}
+        </p>
+        <div class="mt-3">
+            <a href="{{ path('app_agriculteur_serres') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i>
+                Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Form -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5>📋 Informations de la Zone</h5>
+        </div>
+        <div class="p-4">
+            <form method="post" class="row g-3" novalidate>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="nomZone" class="form-label">
+                            📏 Nom de la zone *
+                        </label>
+                        <input type="text" 
+                               id="nomZone" 
+                               name="nomZone" 
+                               class="form-control" 
+                               value="{{ zone ? zone.nomZone : '' }}"
+                               placeholder="Ex: Zone A1, Tomates Cerises">
+                        <small class="form-text text-muted">
+                            Donnez un nom clair pour identifier cette zone
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="typeZone" class="form-label">
+                            🏷️ Type de zone *
+                        </label>
+                        <select id="typeZone" name="typeZone" class="form-control">
+                            <option value="">Choisir un type</option>
+                            <option value="culture" {{ zone and zone.typeZone == 'culture' ? 'selected' : '' }}>
+                                🌾 Culture - Production principale
+                            </option>
+                            <option value="stockage" {{ zone and zone.typeZone == 'stockage' ? 'selected' : '' }}>
+                                📦 Stockage - Conservation
+                            </option>
+                            <option value="preparation" {{ zone and zone.typeZone == 'preparation' ? 'selected' : '' }}>
+                                🔧 Préparation - Pré-culture
+                            </option>
+                            <option value="expérimentation" {{ zone and zone.typeZone == 'expérimentation' ? 'selected' : '' }}>
+                                🧪 Expérimentation - Tests
+                            </option>
+                        </select>
+                        <small class="form-text text-muted">
+                            Type d'utilisation principal de cette zone
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="superficie" class="form-label">
+                            📐 Superficie (m²) *
+                        </label>
+                        <input type="number" 
+                               id="superficie" 
+                               name="superficie" 
+                               class="form-control" 
+                               value="{{ zone ? zone.superficie : '' }}"
+                               placeholder="Ex: 100"
+                               min="1"
+                               step="0.01">
+                        <small class="form-text text-muted">
+                            Surface de cette zone en mètres carrés
+                            {% if zone and zone.serre %}
+                                {% set surfaceUtilisee = 0 %}
+                                {% for z in zone.serre.zones %}
+                                    {% if zone.id != z.id %}
+                                        {% set surfaceUtilisee = surfaceUtilisee + z.superficie %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% set surfaceRestante = zone.serre.surface - surfaceUtilisee %}
+                                <br><strong>Surface restante disponible : {{ surfaceRestante }} m²</strong>
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="etatZone" class="form-label">
+                            📊 État *
+                        </label>
+                        <select id="etatZone" name="etatZone" class="form-control">
+                            <option value="">Choisir un état</option>
+                            <option value="active" {{ zone and zone.etatZone == 'active' ? 'selected' : '' }}>
+                                ✅ Active - En production
+                            </option>
+                            <option value="inactive" {{ zone and zone.etatZone == 'inactive' ? 'selected' : '' }}>
+                                ⚠️ Inactive - Non utilisée
+                            </option>
+                        </select>
+                        <small class="form-text text-muted">
+                            État actuel de la zone
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="serre" class="form-label">
+                            🏠 Serre *
+                        </label>
+                        <select id="serre" name="serre" class="form-control">
+                            <option value="">Choisir une serre</option>
+                            {% for serre in serres %}
+                                <option value="{{ serre.id }}" 
+                                        {{ zone and zone.serre and zone.serre.id == serre.id ? 'selected' : '' }}>
+                                    {{ serre.nomSerre }} ({{ serre.localisation }}) - {{ serre.surface }} m²
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">
+                            Sélectionnez la serre qui contiendra cette zone
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label for="cultureAssociee" class="form-label">
+                            🌾 Culture associée
+                        </label>
+                        <input type="text" 
+                               id="cultureAssociee" 
+                               name="cultureAssociee" 
+                               class="form-control" 
+                               value="{{ zone ? zone.cultureAssociee : '' }}"
+                               placeholder="Ex: Tomates, Salades, Concombres...">
+                        <small class="form-text text-muted">
+                            Type de culture prévue pour cette zone (optionnel)
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Les champs marqués d'un * sont obligatoires
+                            </small>
+                        </div>
+                        <div>
+                            <a href="{{ path('app_agriculteur_serres') }}" class="btn btn-outline-secondary me-2">
+                                <i class="bi bi-x-lg"></i>
+                                Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i>
+                                {{ action }} la zone
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="content-card mt-4">
+        <div class="card-header">
+            <h5>💡 Bonnes Pratiques</h5>
+        </div>
+        <div class="p-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><i class="bi bi-grid-3x3 text-primary"></i> Nom</h6>
+                    <ul>
+                        <li>Utilisez des codes simples et logiques</li>
+                        <li>Ex: "A1", "B2", "Zone Tomates"</li>
+                        <li>Facilite l'identification rapide</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="bi bi-tag text-primary"></i> Type</h6>
+                    <ul>
+                        <li><strong>Culture:</strong> Production principale</li>
+                        <li><strong>Stockage:</strong> Conservation récoltes</li>
+                        <li><strong>Préparation:</strong> Pré-culture</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="bi bi-rulers text-primary"></i> Superficie</h6>
+                    <ul>
+                        <li>Respectez la surface de la serre</li>
+                        <li>Prévoyez des allées si nécessaire</li>
+                        <li>Optimisez l'espace disponible</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="bi bi-house-door text-primary"></i> Serre</h6>
+                    <ul>
+                        <li>Une zone appartient à une seule serre</li>
+                        <li>Vérifiez la surface disponible</li>
+                        <li>La surface zone ≤ surface serre</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

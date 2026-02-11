@@ -1,0 +1,175 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Tableau de Bord - Administration{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>🌿 Tableau de Bord Administratif</h1>
+        <p>Supervision globale du système AgroSense</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ stats.totalSerres }}</div>
+            <div class="label">🏠 Serres Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.activeSerres }}</div>
+            <div class="label">✅ Serres Actives</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.totalZones }}</div>
+            <div class="label">📏 Zones Totales</div>
+        </div>
+      
+        <div class="stat-card">
+            <div class="number">{{ stats.totalSurface }} m²</div>
+            <div class="label">📐 Surface Totale</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>📊 Actions de Supervision</h5>
+           
+        </div>
+        <div class="p-3">
+            <!-- Actions Principales -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <a href="{{ path('app_admin_serres') }}" class="btn btn-primary w-100">
+                        <i class="bi bi-eye"></i>
+                         Consulter les Serres
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('app_admin_zones') }}" class="btn btn-primary w-100">
+                        <i class="bi bi-eye"></i>
+                         Consulter les Zones
+                    </a>
+                </div>
+            </div>
+            
+      
+        </div>
+    </div>
+
+    <!-- System Overview -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>📊 Vue d'Ensemble du Système</h5>
+                </div>
+                <div class="p-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6>🏠 Répartition des Serres</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar bg-success" style="width: {{ (stats.activeSerres / stats.totalSerres * 100)|round }}%">
+                                    Actives: {{ stats.activeSerres }}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ (stats.activeSerres / stats.totalSerres * 100)|round }}% des serres sont actives</small>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>📏 Répartition des Zones</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar bg-info" style="width: {{ (stats.activeZones / stats.totalZones * 100)|round }}%">
+                                    Actives: {{ stats.activeZones }}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ (stats.activeZones / stats.totalZones * 100)|round }}% des zones sont actives</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>🔍 Incohérences Détectées</h5>
+                </div>
+                <div class="p-3">
+                    {% if incoherences|length > 0 %}
+                        {% for incoherence in incoherences %}
+                            <div class="incoherence-item mb-2">
+                                <small><strong>{{ incoherence.type|title }}</strong></small><br>
+                                <small>{{ incoherence.message }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                            <p>Aucune incohérence détectée</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="content-card mt-4">
+        <div class="card-header">
+            <h5>📋 Activité Récente</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Entité</th>
+                        <th>Utilisateur</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recentActivity is defined and recentActivity|length > 0 %}
+                        {% for activity in recentActivity %}
+                            <tr>
+                                <td>{{ activity.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ activity.type == 'CREATE' ? 'success' : activity.type == 'UPDATE' ? 'warning' : 'danger' }}">
+                                        {{ activity.type }}
+                                    </span>
+                                </td>
+                                <td>{{ activity.entityType }} #{{ activity.entityId }}</td>
+                                <td>{{ activity.user.email }}</td>
+                                <td>
+                                    {% if activity.success %}
+                                        <i class="bi bi-check-circle text-success"></i>
+                                    {% else %}
+                                        <i class="bi bi-x-circle text-danger"></i>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Aucune activité récente
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

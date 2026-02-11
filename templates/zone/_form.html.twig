@@ -1,0 +1,13 @@
+{{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+
+    {{ form_row(form.nomSerre) }}
+    {{ form_row(form.localisation) }}
+    {{ form_row(form.surface) }}
+    {{ form_row(form.etatSerre) }}
+    {{ form_row(form.dateMiseEnService) }}
+
+    <button class="btn btn-success">
+        Enregistrer
+    </button>
+
+{{ form_end(form) }}
