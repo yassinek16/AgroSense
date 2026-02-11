@@ -1,0 +1,163 @@
+{% extends 'front/front_base.html.twig' %}
+
+{% block title %}Panier - AgriCulture{% endblock %}
+
+{% block body %}
+<!-- Hero Section -->
+<section class="hero-section agricultural-pattern">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold text-white mb-4">
+                    <i class="bi bi-cart3 me-3"></i>Votre Panier
+                </h1>
+                <p class="lead text-white mb-0">
+                    Gérez vos articles et finalisez votre commande
+                </p>
+            </div>
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <i class="bi bi-basket" style="font-size: 6rem; color: rgba(255,255,255,0.3);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cart Content -->
+<section class="py-5">
+    <div class="container">
+        {% if cart is not empty %}
+            <form method="POST" action="{{ path('app_cart') }}">
+                <div class="row">
+                    <!-- Cart Items -->
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-list-check me-2"></i>Articles dans votre panier
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% for cartId, item in cart %}
+                                    {% set product = item.product %}
+                                    {% set quantity = item.quantity %}
+                                    {% set subtotal = product.prix * quantity %}
+                                    
+                                    <div class="row align-items-center border-bottom pb-3 mb-3">
+                                        <!-- Product Image -->
+                                        <div class="col-md-2">
+                                            {% if product.image %}
+                                                <img src="{{ asset('uploads/images/' ~ product.image) }}" 
+                                                     class="img-fluid rounded" 
+                                                     alt="{{ product.nom }}"
+                                                     style="max-height: 80px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                                     style="height: 80px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Product Info -->
+                                        <div class="col-md-4">
+                                            <h6 class="mb-1">{{ product.nom }}</h6>
+                                            <p class="text-muted small mb-0">
+                                                {{ product.description|slice(0, 50) }}{% if product.description|length > 50 %}...{% endif %}
+                                            </p>
+                                            <p class="text-success fw-bold mb-0">{{ product.prix }} DT / unité</p>
+                                        </div>
+
+                                        <!-- Quantity -->
+                                        <div class="col-md-3">
+                                            <form action="{{ path('app_cart_update', {'id': cartId}) }}" method="POST" style="display: inline;">
+                                                <label class="form-label small">Quantité</label>
+                                                <input type="number" 
+                                                       name="quantity" 
+                                                       value="{{ item.quantity }}" 
+                                                       class="form-control text-center"
+                                                       min="1"
+                                                       max="{{ product.quantiteStock }}"
+                                                       onchange="this.form.submit()">
+                                                {% if product.quantiteStock < quantity %}
+                                                    <div class="form-text text-danger">
+                                                        Stock disponible: {{ product.quantiteStock }}
+                                                    </div>
+                                                {% endif %}
+                                            </form>
+                                        </div>
+
+                                        <!-- Subtotal & Remove -->
+                                        <div class="col-md-3 text-end">
+                                            <div class="mb-2">
+                                                <strong class="text-success">{{ subtotal }} DT</strong>
+                                            </div>
+                                            <form action="{{ path('app_cart_remove', {'id': cartId}) }}" method="POST" 
+                                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i> Supprimer
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Summary -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-calculator me-2"></i>Récapitulatif
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span>Total:</span>
+                                    <strong class="text-success">{{ total }} DT</strong>
+                                </div>
+                                <form action="{{ path('app_checkout') }}" method="POST">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-credit-card me-2"></i>Passer la commande
+                                    </button>
+                                </form>
+                                <a href="{{ path('app_front_index') }}" class="btn btn-outline-secondary w-100 mt-2">
+                                    <i class="bi bi-arrow-left me-2"></i>Continuer vos achats
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Info Card -->
+                        <div class="card border-info mt-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-info-circle me-2"></i>Information
+                                </h6>
+                                <p class="card-text small text-muted">
+                                    La livraison est gratuite pour toutes les commandes. 
+                                    Nos produits sont livrés dans un délai de 24-48h.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            <!-- Empty Cart -->
+            <div class="text-center py-5">
+                <i class="bi bi-cart-x" style="font-size: 5rem; color: #ccc;"></i>
+                <h3 class="mt-4 text-muted">Votre panier est vide</h3>
+                <p class="text-muted mb-4">
+                    Découvrez nos produits et remplissez votre panier!
+                </p>
+                <a href="{{ path('app_front_index') }}" class="btn btn-primary">
+                    <i class="bi bi-shop me-2"></i>Voir les produits
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

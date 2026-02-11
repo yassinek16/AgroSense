@@ -1,0 +1,36 @@
+{% extends 'back/back_base.html.twig' %}
+
+{% block title %}Modifier une Commande{% endblock %}
+
+{% block page_title %}Modifier une Commande{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>Modifier: {{ commande.reference }}
+                </h5>
+            </div>
+            <div class="card-body">
+                {{ include('back/commande/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+            </div>
+        </div>
+        
+        <div class="card mt-3 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Zone de danger
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    La suppression de cette commande est irréversible et supprimera également toutes les données associées.
+                </p>
+                {{ include('back/commande/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
