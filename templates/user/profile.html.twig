@@ -1,0 +1,100 @@
+{% extends "front/front_base.html.twig" %}
+
+{% block title %}Mon Profil - AgriCulture{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-circle"></i> Mon Profil</h4>
+                </div>
+                <div class="card-body">
+                    {% if app.flashes %}
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" class="mt-4">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">Prénom</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" value="{{ user.firstName }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Nom</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" value="{{ user.lastName }}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                            <small class="text-muted">L'email ne peut pas être modifié</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Téléphone</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone or '' }}" placeholder="(+216) 9X XXX XXX">
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Changer le mot de passe</h5>
+                        
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Nouveau mot de passe (optionnel)</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Laisser vide pour ne pas changer">
+                            <small class="text-muted">Minimum 6 caractères</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirmez le mot de passe">
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                            </button>
+                            <a href="{{ path('app_front_index') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="row text-center mt-4">
+                        <div class="col-md-4">
+                            <small class="text-muted">Créé le:</small>
+                            <p class="fw-bold">{{ user.createdAt|date('d/m/Y') }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted">Commandes:</small>
+                            <p class="fw-bold">{{ user.commandes|length }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted">Tickets:</small>
+                            <p class="fw-bold">{{ user.tickets|length }}</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ path('user_orders') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-bag-check"></i> Voir mes commandes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

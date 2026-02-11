@@ -122,9 +122,16 @@
                     
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_admin_dashboard') }}">
+                            <a class="nav-link" href="{{ path('admin_dashboard') }}">
                                 <i class="bi bi-speedometer2"></i>Tableau de Bord
                             </a>
+                        </li>
+
+                        <!-- Shop Management Section -->
+                        <li class="nav-item mt-3">
+                            <small class="nav-link text-white-50" style="cursor: default;">
+                                <i class="bi bi-shop"></i>Gestion Boutique
+                            </small>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_produit_index') }}">
@@ -136,9 +143,55 @@
                                 <i class="bi bi-receipt"></i>Commandes
                             </a>
                         </li>
+
+                        <!-- Events Management Section -->
+                        <li class="nav-item mt-3">
+                            <small class="nav-link text-white-50" style="cursor: default;">
+                                <i class="bi bi-calendar-event"></i>Gestion Événements
+                            </small>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('evenement_index') }}">
+                                <i class="bi bi-calendar"></i>Événements
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('admin_tickets') }}">
+                                <i class="bi bi-ticket-perforated"></i>Tickets
+                            </a>
+                        </li>
+
+                        <!-- System Management Section -->
+                        <li class="nav-item mt-3">
+                            <small class="nav-link text-white-50" style="cursor: default;">
+                                <i class="bi bi-gear"></i>Gestion Système
+                            </small>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('admin_users') }}">
+                                <i class="bi bi-people"></i>Utilisateurs
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('admin_reports') }}">
+                                <i class="bi bi-graph-up"></i>Rapports
+                            </a>
+                        </li>
+
+                        <!-- Actions Section -->
+                        <li class="nav-item mt-3">
+                            <small class="nav-link text-white-50" style="cursor: default;">
+                                <i class="bi bi-arrow-left-right"></i>Actions
+                            </small>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_front_index') }}">
                                 <i class="bi bi-shop"></i>Voir la boutique
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_logout') }}">
+                                <i class="bi bi-box-arrow-right"></i>Déconnexion
                             </a>
                         </li>
                     </ul>

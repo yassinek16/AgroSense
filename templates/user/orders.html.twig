@@ -1,0 +1,109 @@
+{% extends "front/front_base.html.twig" %}
+
+{% block title %}Mes Commandes - AgriCulture{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="bi bi-bag-check"></i> Mes Commandes</h4>
+                    <a href="{{ path('app_front_index') }}" class="btn btn-sm btn-light">
+                        <i class="bi bi-shop"></i> Continuer les achats
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if app.flashes %}
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if orders is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                            <p class="text-muted mt-3">Vous n'avez pas encore de commandes.</p>
+                            <a href="{{ path('app_front_index') }}" class="btn btn-success">
+                                <i class="bi bi-shop"></i> Commencer vos achats
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><i class="bi bi-hash"></i> Référence</th>
+                                        <th><i class="bi bi-calendar"></i> Date</th>
+                                        <th><i class="bi bi-tag"></i> Articles</th>
+                                        <th><i class="bi bi-cash-coin"></i> Total</th>
+                                        <th><i class="bi bi-info-circle"></i> Statut</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ order.reference }}</strong>
+                                            </td>
+                                            <td>{{ order.dateCommande|date('d/m/Y à H:i') }}</td>
+                                            <td>
+                                                <span class="badge bg-info">{{ order.ligneCommandes|length }} article{{ order.ligneCommandes|length > 1 ? 's' : '' }}</span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">{{ order.total|number_format(2, ',', ' ') }} DT</strong>
+                                            </td>
+                                            <td>
+                                                {% if order.statut == 'Confirmée' %}
+                                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Confirmée</span>
+                                                {% elseif order.statut == 'En attente' %}
+                                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> En attente</span>
+                                                {% elseif order.statut == 'Expédiée' %}
+                                                    <span class="badge bg-info"><i class="bi bi-truck"></i> Expédiée</span>
+                                                {% elseif order.statut == 'Livrée' %}
+                                                    <span class="badge bg-primary"><i class="bi bi-check2-all"></i> Livrée</span>
+                                                {% elseif order.statut == 'Annulée' %}
+                                                    <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Annulée</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ order.statut }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('user_order_details', {'id': order.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i> Détails
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="row mt-4 pt-4 border-top">
+                            <div class="col-md-4">
+                                <small class="text-muted">Total commandes</small>
+                                <p class="h5 text-success fw-bold">{{ orders|length }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">Montant total dépensé</small>
+                                <p class="h5 text-success fw-bold">{{ orders|reduce((carry, order) => carry + order.total, 0)|number_format(2, ',', ' ') }} DT</p>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="text-muted">Dépense moyenne</small>
+                                <p class="h5 text-success fw-bold">{{ (orders|reduce((carry, order) => carry + order.total, 0) / (orders|length ?: 1))|number_format(2, ',', ' ') }} DT</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

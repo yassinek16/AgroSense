@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class FrontController extends AbstractController
 {
@@ -128,6 +129,7 @@ public function addToCart(
     }
 
     #[Route('/checkout', name: 'app_checkout', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function checkout(\App\Service\CartService $cartService, EntityManagerInterface $entityManager): Response
     {
         $cartWithData = $cartService->getFullCart();
@@ -143,6 +145,7 @@ public function addToCart(
         $commande->setTotal($cartService->getTotal());
         $commande->setCreatedAt(new \DateTimeImmutable());
         $commande->setStatut('Confirmée');
+        $commande->setUser($this->getUser());
 
         foreach ($cartWithData as $item) {
             $produit = $item['product'];

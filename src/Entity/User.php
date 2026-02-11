@@ -36,7 +36,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: "Password is required.")]
     #[Assert\Length(
         min: 6,
         minMessage: "Password must be at least {{ limit }} characters long.",
@@ -44,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $password = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, name: 'first_name')]
     #[Assert\NotBlank(message: "First name is required.")]
     #[Assert\Length(
         min: 2,
@@ -53,7 +52,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $firstName = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, name: 'last_name')]
     #[Assert\NotBlank(message: "Last name is required.")]
     #[Assert\Length(
         min: 2,
@@ -62,8 +61,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $lastName = null;
 
-    #[ORM\Column(length: 20, nullable: true)]
-    #[Assert\NotBlank(message: "Phone number is required.")]
+    #[ORM\Column(length: 20, nullable: true, name: 'phone')]
     #[Assert\Length(
         max: 20,
         maxMessage: "Phone number cannot exceed {{ limit }} characters."
@@ -74,10 +72,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $phone = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', name: 'created_at')]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', name: 'is_active')]
     private bool $isActive = true;
 
     /**
@@ -92,11 +90,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Evenement::class, mappedBy: 'organisateur')]
     private Collection $organizedEvents;
 
+    /**
+     * @var Collection<int, Commande>
+     */
+    #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $commandes;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->tickets = new ArrayCollection();
         $this->organizedEvents = new ArrayCollection();
+        $this->commandes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -257,6 +262,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->organizedEvents->removeElement($evenement)) {
             if ($evenement->getOrganisateur() === $this) {
                 $evenement->setOrganisateur(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commande>
+     */
+    public function getCommandes(): Collection
+    {
+        return $this->commandes;
+    }
+
+    public function addCommande(Commande $commande): static
+    {
+        if (!$this->commandes->contains($commande)) {
+            $this->commandes->add($commande);
+            $commande->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeCommande(Commande $commande): static
+    {
+        if ($this->commandes->removeElement($commande)) {
+            if ($commande->getUser() === $this) {
+                $commande->setUser(null);
             }
         }
         return $this;

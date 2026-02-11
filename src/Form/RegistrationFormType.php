@@ -48,7 +48,9 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Mot de passe',
+                'required' => true,
                 'mapped' => false,
+                'empty_data' => '',
                 'attr' => [
                     'autocomplete' => 'new-password',
                     'class' => 'form-control'

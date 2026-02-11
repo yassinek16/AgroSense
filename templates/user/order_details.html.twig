@@ -1,0 +1,138 @@
+{% extends "front/front_base.html.twig" %}
+
+{% block title %}Détails de Commande {{ order.reference }} - AgriCulture{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Order Header -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-receipt"></i> Commande {{ order.reference }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Date de commande</small>
+                            <p class="fw-bold">{{ order.dateCommande|date('d/m/Y à H:i') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Statut</small>
+                            <p>
+                                {% if order.statut == 'Confirmée' %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Confirmée</span>
+                                {% elseif order.statut == 'En attente' %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> En attente</span>
+                                {% elseif order.statut == 'Expédiée' %}
+                                    <span class="badge bg-info"><i class="bi bi-truck"></i> Expédiée</span>
+                                {% elseif order.statut == 'Livrée' %}
+                                    <span class="badge bg-primary"><i class="bi bi-check2-all"></i> Livrée</span>
+                                {% elseif order.statut == 'Annulée' %}
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Annulée</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.statut }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-bag"></i> Articles commandés</h5>
+                </div>
+                <div class="card-body">
+                    {% if order.ligneCommandes is empty %}
+                        <p class="text-muted">Aucun article dans cette commande.</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th class="text-center">Quantité</th>
+                                        <th class="text-end">Prix unitaire</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ligne in order.ligneCommandes %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if ligne.produit.image %}
+                                                        <img src="{{ asset('uploads/images/' ~ ligne.produit.image) }}" alt="{{ ligne.produit.nom }}" 
+                                                             class="img-thumbnail me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    {% endif %}
+                                                    <div>
+                                                        <strong>{{ ligne.produit.nom }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">{{ ligne.produit.description|slice(0, 50) }}...</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark">{{ ligne.quantite }}</span>
+                                            </td>
+                                            <td class="text-end">{{ ligne.prixUnitaire|number_format(2, ',', ' ') }} DT</td>
+                                            <td class="text-end fw-bold">
+                                                {{ (ligne.prixUnitaire * ligne.quantite)|number_format(2, ',', ' ') }} DT
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted">Nombre d'articles</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <p class="fw-bold">{{ order.ligneCommandes|length }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-muted">Total de la commande</h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h5 class="text-success fw-bold">{{ order.total|number_format(2, ',', ' ') }} DT</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-2 justify-content-between">
+                <a href="{{ path('user_orders') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour aux commandes
+                </a>
+
+                {% if order.statut in ['Confirmée', 'En attente'] %}
+                    <form method="post" action="{{ path('user_order_cancel', {'id': order.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ order.id) }}">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?');">
+                            <i class="bi bi-x-circle"></i> Annuler la commande
+                        </button>
+                    </form>
+                {% endif %}
+
+                <a href="{{ path('app_front_index') }}" class="btn btn-success">
+                    <i class="bi bi-shop"></i> Continuer les achats
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
