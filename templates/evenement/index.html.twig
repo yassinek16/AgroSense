@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Événements - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-success">
+            <i class="bi bi-calendar-event"></i> Événements disponibles
+        </h1>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('evenement_new') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Nouvel événement
+            </a>
+        {% endif %}
+    </div>
+
+    {% if evenements is empty %}
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> Aucun événement disponible pour le moment.
+        </div>
+    {% else %}
+        <div class="row">
+            {% for e in evenements %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        {% if e.imageUrl %}
+                            <img src="{{ e.imageUrl }}" class="card-img-top event-card-image" alt="{{ e.titre }}">
+                        {% else %}
+                            <div class="event-card-image d-flex align-items-center justify-content-center">
+                                <i class="bi bi-calendar-event" style="font-size: 4rem; color: var(--primary-green);"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ e.titre }}</h5>
+                                <span class="badge 
+                                    {% if e.statut == 'prevu' %}bg-success
+                                    {% elseif e.statut == 'annule' %}bg-danger
+                                    {% elseif e.statut == 'termine' %}bg-secondary
+                                    {% else %}bg-info{% endif %}">
+                                    {{ e.statut|capitalize }}
+                                </span>
+                            </div>
+                            
+                            <h6 class="card-subtitle mb-3 text-muted">
+                                <i class="bi bi-tag"></i> {{ e.typeEvenement|capitalize }}
+                            </h6>
+                            
+                            <p class="card-text text-muted small">
+                                {{ e.description|length > 100 ? e.description|slice(0, 100) ~ '...' : e.description }}
+                            </p>
+                            
+                            <div class="mb-3">
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> {{ e.lieu }}
+                                </div>
+                                <div class="small text-muted mb-1">
+                                    <i class="bi bi-calendar-check"></i> {{ e.dateDebut|date('d/m/Y à H:i') }}
+                                </div>
+                                {% if e.requiresTicket %}
+                                    <div class="small mb-1">
+                                        <i class="bi bi-currency-dollar text-warning"></i>
+                                        <strong>{{ e.ticketPrice }} TND</strong>
+                                    </div>
+                                {% else %}
+                                    <div class="small text-success">
+                                        <i class="bi bi-gift"></i> Gratuit
+                                    </div>
+                                {% endif %}
+                                {% if e.capaciteMax %}
+                                    <div class="small">
+                                        <i class="bi bi-people"></i>
+                                        {{ e.ticketsSold }}/{{ e.capaciteMax }} places
+                                        {% if e.isFull %}
+                                            <span class="badge bg-danger">Complet</span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ path('evenement_show', {id: e.id}) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-eye"></i> Détails
+                                </a>
+                                
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ path('evenement_edit', {id: e.id}) }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ path('evenement_statistics', {id: e.id}) }}" class="btn btn-outline-info">
+                                            <i class="bi bi-graph-up"></i>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

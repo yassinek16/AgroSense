@@ -1,0 +1,168 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un événement - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-calendar-plus"></i> Créer un nouvel événement
+                    </h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                        
+                        <div class="row">
+                            <!-- Titre -->
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.titre) }}
+                                {{ form_errors(form.titre) }}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.description) }}
+                                {{ form_errors(form.description) }}
+                                <small class="form-text text-muted">
+                                    Décrivez l'événement en détail pour attirer les participants
+                                </small>
+                            </div>
+
+                            <!-- Type et Statut -->
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.typeEvenement, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.typeEvenement) }}
+                                {{ form_errors(form.typeEvenement) }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.statut, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.statut) }}
+                                {{ form_errors(form.statut) }}
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.dateDebut) }}
+                                {{ form_errors(form.dateDebut) }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.dateFin, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.dateFin) }}
+                                {{ form_errors(form.dateFin) }}
+                            </div>
+
+                            <!-- Lieu et Capacité -->
+                            <div class="col-md-8 mb-3">
+                                {{ form_label(form.lieu, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.lieu) }}
+                                {{ form_errors(form.lieu) }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                {{ form_label(form.capaciteMax, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.capaciteMax) }}
+                                {{ form_errors(form.capaciteMax) }}
+                                <small class="form-text text-muted">
+                                    Laisser vide pour illimité
+                                </small>
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.imageUrl, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.imageUrl) }}
+                                {{ form_errors(form.imageUrl) }}
+                                <small class="form-text text-muted">
+                                    URL d'une image pour l'événement (optionnel)
+                                </small>
+                            </div>
+
+                            <!-- Ticketing Section -->
+                            <div class="col-12 mb-3">
+                                <hr class="my-4">
+                                <h5 class="text-success mb-3">
+                                    <i class="bi bi-ticket-perforated"></i> Billetterie
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.requiresTicket, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                                    {{ form_label(form.requiresTicket, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
+                                </div>
+                                {{ form_errors(form.requiresTicket) }}
+                                <small class="form-text text-muted">
+                                    Activer si l'événement nécessite un achat de billet
+                                </small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.ticketPrice, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.ticketPrice) }}
+                                {{ form_errors(form.ticketPrice) }}
+                                <small class="form-text text-muted">
+                                    Prix en TND (mettre 0 pour gratuit)
+                                </small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('evenement_index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-check-circle"></i> Créer l'événement
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-lightbulb text-warning"></i> Conseils pour créer un bon événement
+                    </h6>
+                    <ul class="mb-0">
+                        <li>Utilisez un titre accrocheur et descriptif</li>
+                        <li>Ajoutez une description détaillée avec les informations pratiques</li>
+                        <li>Choisissez une image attrayante pour illustrer l'événement</li>
+                        <li>Définissez une capacité réaliste pour gérer les inscriptions</li>
+                        <li>Si l'événement est payant, fixez un prix juste et compétitif</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle price field based on requiresTicket checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+        const requiresTicket = document.getElementById('evenement_requiresTicket');
+        const priceField = document.getElementById('evenement_ticketPrice').closest('.col-md-6');
+        
+        if (requiresTicket && priceField) {
+            function togglePrice() {
+                priceField.style.display = requiresTicket.checked ? 'block' : 'none';
+            }
+            
+            requiresTicket.addEventListener('change', togglePrice);
+            togglePrice(); // Initial state
+        }
+    });
+</script>
+{% endblock %}

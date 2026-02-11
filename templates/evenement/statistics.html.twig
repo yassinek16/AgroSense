@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques - {{ evenement.titre }}{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-success">
+            <i class="bi bi-graph-up"></i> Statistiques de l'événement
+        </h1>
+        <a href="{{ path('evenement_show', {id: evenement.id}) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <!-- Event Info Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h3 class="card-title text-success">{{ evenement.titre }}</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="mb-1"><i class="bi bi-calendar-event"></i> {{ evenement.dateDebut|date('d/m/Y à H:i') }}</p>
+                    <p class="mb-1"><i class="bi bi-geo-alt"></i> {{ evenement.lieu }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1"><i class="bi bi-tag"></i> {{ evenement.typeEvenement|capitalize }}</p>
+                    <p class="mb-1"><i class="bi bi-currency-dollar"></i> {{ evenement.ticketPrice }} TND</p>
+                </div>
+                <div class="col-md-4">
+                    {% if evenement.capaciteMax %}
+                        <p class="mb-1"><i class="bi bi-people"></i> Capacité: {{ evenement.capaciteMax }}</p>
+                    {% endif %}
+                    <span class="badge bg-{{ evenement.statut == 'prevu' ? 'success' : 'secondary' }}">
+                        {{ evenement.statut|capitalize }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-ticket-perforated" style="font-size: 2.5rem;"></i>
+                    <h2 class="mt-2 mb-0">{{ ticketsSold }}</h2>
+                    <p class="mb-0">Billets Vendus</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-dollar" style="font-size: 2.5rem;"></i>
+                    <h2 class="mt-2 mb-0">{{ revenue|number_format(2) }}</h2>
+                    <p class="mb-0">Revenus (TND)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people" style="font-size: 2.5rem;"></i>
+                    <h2 class="mt-2 mb-0">{{ remainingCapacity ?? '∞' }}</h2>
+                    <p class="mb-0">Places Restantes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-percent" style="font-size: 2.5rem;"></i>
+                    <h2 class="mt-2 mb-0">
+                        {% if evenement.capaciteMax %}
+                            {{ (ticketsSold / evenement.capaciteMax * 100)|round }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h2>
+                    <p class="mb-0">Taux de Remplissage</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capacity Progress -->
+    {% if evenement.capaciteMax %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Capacité de l'événement</h5>
+                <div class="progress" style="height: 30px;">
+                    {% set percentage = (ticketsSold / evenement.capaciteMax * 100)|round %}
+                    <div class="progress-bar bg-success" style="width: {{ percentage }}%;">
+                        {{ ticketsSold }} / {{ evenement.capaciteMax }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Tickets List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i> Liste des billets ({{ confirmedTickets|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if confirmedTickets is empty %}
+                <p class="text-muted text-center py-4">Aucun billet vendu pour cet événement</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Participant</th>
+                                <th>Email</th>
+                                <th>Date d'achat</th>
+                                <th>Prix</th>
+                                <th>Paiement</th>
+                                <th>Statut</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in confirmedTickets %}
+                                <tr>
+                                    <td><code>{{ ticket.referenceTicket }}</code></td>
+                                    <td>{{ ticket.user.fullName }}</td>
+                                    <td>{{ ticket.user.email }}</td>
+                                    <td>{{ ticket.dateAchat|date('d/m/Y H:i') }}</td>
+                                    <td><strong>{{ ticket.prixPaye }} TND</strong></td>
+                                    <td>{{ ticket.paymentMethod|capitalize }}</td>
+                                    <td>
+                                        <span class="badge bg-success">Confirmé</span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ path('ticket_show', {id: ticket.id}) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- All Tickets (including pending/cancelled) -->
+    {% set pendingTickets = tickets|filter(t => t.statut == 'pending') %}
+    {% set cancelledTickets = tickets|filter(t => t.statut == 'cancelled') %}
+    
+    {% if pendingTickets|length > 0 or cancelledTickets|length > 0 %}
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Autres billets
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pendingTickets|length > 0 %}
+                    <h6 class="text-warning">En attente ({{ pendingTickets|length }})</h6>
+                    <ul class="list-group mb-3">
+                        {% for ticket in pendingTickets %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    {{ ticket.user.fullName }} - {{ ticket.referenceTicket }}
+                                </span>
+                                <span class="badge bg-warning">En attente</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if cancelledTickets|length > 0 %}
+                    <h6 class="text-danger">Annulés ({{ cancelledTickets|length }})</h6>
+                    <ul class="list-group">
+                        {% for ticket in cancelledTickets %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>
+                                    {{ ticket.user.fullName }} - {{ ticket.referenceTicket }}
+                                </span>
+                                <span class="badge bg-danger">Annulé</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

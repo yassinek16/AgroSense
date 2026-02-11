@@ -1,0 +1,398 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Billets - Admin{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-success">
+            <i class="bi bi-ticket-perforated-fill"></i> Gestion des Billets
+        </h1>
+        <a href="{{ path('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour au Dashboard
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Total Billets</h6>
+                            <h2 class="mb-0">{{ tickets|length }}</h2>
+                        </div>
+                        <i class="bi bi-ticket-perforated" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Confirmés</h6>
+                            <h2 class="mb-0">{{ tickets|filter(t => t.isConfirmed)|length }}</h2>
+                        </div>
+                        <i class="bi bi-check-circle" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">En Attente</h6>
+                            <h2 class="mb-0">{{ tickets|filter(t => t.isPending)|length }}</h2>
+                        </div>
+                        <i class="bi bi-hourglass-split" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 opacity-75">Annulés</h6>
+                            <h2 class="mb-0">{{ tickets|filter(t => t.isCancelled)|length }}</h2>
+                        </div>
+                        <i class="bi bi-x-circle" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Summary -->
+    {% set totalRevenue = 0 %}
+    {% for ticket in tickets %}
+        {% if ticket.isConfirmed %}
+            {% set totalRevenue = totalRevenue + ticket.prixPaye %}
+        {% endif %}
+    {% endfor %}
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #2d6a4f, #40916c);">
+                <div class="card-body text-white py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="mb-1">
+                                <i class="bi bi-currency-dollar"></i> Revenus Totaux des Billets
+                            </h3>
+                            <p class="mb-0 opacity-75">Montant total généré par les billets confirmés</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <h1 class="display-4 mb-0">{{ totalRevenue|number_format(2) }} TND</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Filtrer par statut</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="">Tous les billets</option>
+                        <option value="confirmed">Confirmés uniquement</option>
+                        <option value="pending">En attente uniquement</option>
+                        <option value="cancelled">Annulés uniquement</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Filtrer par événement</label>
+                    <select id="eventFilter" class="form-select">
+                        <option value="">Tous les événements</option>
+                        {% set eventsList = [] %}
+                        {% for ticket in tickets %}
+                            {% if ticket.evenement.titre not in eventsList %}
+                                {% set eventsList = eventsList|merge([ticket.evenement.titre]) %}
+                                <option value="{{ ticket.evenement.titre }}">{{ ticket.evenement.titre }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Rechercher</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               id="searchInput" 
+                               class="form-control" 
+                               placeholder="Référence, nom, email...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ul"></i> Liste des Billets (<span id="ticketCount">{{ tickets|length }}</span>)
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if tickets is empty %}
+                <div class="text-center py-5">
+                    <i class="bi bi-ticket-detailed" style="font-size: 4rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">Aucun billet enregistré</p>
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="ticketsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50">#</th>
+                                <th>Référence</th>
+                                <th>Participant</th>
+                                <th>Email</th>
+                                <th>Événement</th>
+                                <th>Date d'achat</th>
+                                <th>Prix</th>
+                                <th>Paiement</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in tickets|sort((a, b) => b.dateAchat <=> a.dateAchat) %}
+                                <tr data-status="{{ ticket.statut }}" 
+                                    data-event="{{ ticket.evenement.titre }}"
+                                    data-search="{{ ticket.referenceTicket|lower }} {{ ticket.user.fullName|lower }} {{ ticket.user.email|lower }}">
+                                    <td>{{ ticket.id }}</td>
+                                    <td>
+                                        <code class="text-primary">{{ ticket.referenceTicket }}</code>
+                                    </td>
+                                    <td>
+                                        <strong>{{ ticket.user.fullName }}</strong>
+                                    </td>
+                                    <td>
+                                        <small>{{ ticket.user.email }}</small>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ ticket.evenement.titre }}</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar-event"></i> {{ ticket.evenement.dateDebut|date('d/m/Y H:i') }}
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small>{{ ticket.dateAchat|date('d/m/Y H:i') }}</small>
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">{{ ticket.prixPaye }} TND</strong>
+                                    </td>
+                                    <td>
+                                        {% if ticket.paymentMethod %}
+                                            <span class="badge bg-secondary">{{ ticket.paymentMethod|capitalize }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if ticket.isConfirmed %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Confirmé
+                                            </span>
+                                        {% elseif ticket.isCancelled %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i> Annulé
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-hourglass-split"></i> En attente
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ path('ticket_show', {id: ticket.id}) }}" 
+                                               class="btn btn-outline-info"
+                                               title="Voir le billet">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-outline-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#ticketModal{{ ticket.id }}"
+                                                    title="Détails complets">
+                                                <i class="bi bi-info-circle"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Ticket Details Modal -->
+                                <div class="modal fade" id="ticketModal{{ ticket.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    <i class="bi bi-ticket-detailed"></i> Détails du Billet
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted mb-3">Informations du billet</h6>
+                                                        <div class="mb-2">
+                                                            <strong>Référence:</strong> 
+                                                            <code>{{ ticket.referenceTicket }}</code>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Date d'achat:</strong> 
+                                                            {{ ticket.dateAchat|date('d/m/Y à H:i') }}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Prix payé:</strong> 
+                                                            <span class="text-success fw-bold">{{ ticket.prixPaye }} TND</span>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Méthode de paiement:</strong> 
+                                                           {{ (ticket.paymentMethod ?? 'Non spécifiée')|capitalize }}
+
+                                                        </div>
+                                                        {% if ticket.transactionId %}
+                                                            <div class="mb-2">
+                                                                <strong>ID Transaction:</strong> 
+                                                                <code>{{ ticket.transactionId }}</code>
+                                                            </div>
+                                                        {% endif %}
+                                                        <div class="mb-2">
+                                                            <strong>Statut:</strong>
+                                                            {% if ticket.isConfirmed %}
+                                                                <span class="badge bg-success">Confirmé</span>
+                                                                <br>
+                                                                <small class="text-muted">Validé le {{ ticket.dateValidation|date('d/m/Y à H:i') }}</small>
+                                                            {% elseif ticket.isCancelled %}
+                                                                <span class="badge bg-danger">Annulé</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning">En attente</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <h6 class="text-muted mb-3">Participant</h6>
+                                                        <div class="mb-2">
+                                                            <strong>Nom:</strong> {{ ticket.user.fullName }}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Email:</strong> 
+                                                            <a href="mailto:{{ ticket.user.email }}">{{ ticket.user.email }}</a>
+                                                        </div>
+                                                        {% if ticket.user.phone %}
+                                                            <div class="mb-2">
+                                                                <strong>Téléphone:</strong> {{ ticket.user.phone }}
+                                                            </div>
+                                                        {% endif %}
+                                                        
+                                                        <h6 class="text-muted mb-3 mt-4">Événement</h6>
+                                                        <div class="mb-2">
+                                                            <strong>Titre:</strong> {{ ticket.evenement.titre }}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Type:</strong> {{ ticket.evenement.typeEvenement|capitalize }}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Date:</strong> {{ ticket.evenement.dateDebut|date('d/m/Y à H:i') }}
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <strong>Lieu:</strong> {{ ticket.evenement.lieu }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {% if ticket.notes %}
+                                                    <hr>
+                                                    <h6 class="text-muted mb-2">Notes</h6>
+                                                    <p class="mb-0">{{ ticket.notes }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{{ path('ticket_show', {id: ticket.id}) }}" class="btn btn-primary">
+                                                    <i class="bi bi-eye"></i> Voir le billet complet
+                                                </a>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const ticketsTable = document.getElementById('ticketsTable');
+    const statusFilter = document.getElementById('statusFilter');
+    const eventFilter = document.getElementById('eventFilter');
+    const searchInput = document.getElementById('searchInput');
+    const ticketCount = document.getElementById('ticketCount');
+
+    function filterTickets() {
+        const status = statusFilter.value;
+        const event = eventFilter.value;
+        const search = searchInput.value.toLowerCase();
+        
+        const rows = ticketsTable.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const rowStatus = row.dataset.status;
+            const rowEvent = row.dataset.event;
+            const rowSearch = row.dataset.search;
+            
+            let showRow = true;
+            
+            // Status filter
+            if (status && rowStatus !== status) {
+                showRow = false;
+            }
+            
+            // Event filter
+            if (event && rowEvent !== event) {
+                showRow = false;
+            }
+            
+            // Search filter
+            if (search && !rowSearch.includes(search)) {
+                showRow = false;
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+            if (showRow) visibleCount++;
+        });
+        
+        ticketCount.textContent = visibleCount;
+    }
+
+    statusFilter.addEventListener('change', filterTickets);
+    eventFilter.addEventListener('change', filterTickets);
+    searchInput.addEventListener('keyup', filterTickets);
+</script>
+{% endblock %}

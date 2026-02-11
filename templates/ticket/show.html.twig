@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Billet {{ ticket.referenceTicket }}{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Ticket Card -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-header {% if ticket.isCancelled %}bg-danger{% elseif ticket.isConfirmed %}bg-success{% else %}bg-warning{% endif %} text-white text-center py-3">
+                    <h3 class="mb-0">
+                        <i class="bi bi-ticket-perforated"></i> BILLET D'ENTRÉE
+                    </h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Status Badge -->
+                    <div class="text-center mb-4">
+                        <h2 class="badge {% if ticket.isCancelled %}bg-danger{% elseif ticket.isConfirmed %}bg-success{% else %}bg-warning{% endif %} p-3">
+                            {% if ticket.isCancelled %}
+                                <i class="bi bi-x-circle"></i> ANNULÉ
+                            {% elseif ticket.isConfirmed %}
+                                <i class="bi bi-check-circle"></i> CONFIRMÉ
+                            {% else %}
+                                <i class="bi bi-clock"></i> EN ATTENTE
+                            {% endif %}
+                        </h2>
+                    </div>
+
+                    <!-- Event Info -->
+                    <div class="text-center mb-4">
+                        <h4 class="text-success mb-2">{{ ticket.evenement.titre }}</h4>
+                        <p class="text-muted mb-1">{{ ticket.evenement.typeEvenement|capitalize }}</p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Ticket Details -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="bi bi-hash"></i> Référence
+                            </h6>
+                            <p class="h5 font-monospace">{{ ticket.referenceTicket }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="bi bi-person-circle"></i> Nom du participant
+                            </h6>
+                            <p class="h6">{{ ticket.user.fullName }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="bi bi-calendar-event"></i> Date de l'événement
+                            </h6>
+                            <p class="fw-bold">{{ ticket.evenement.dateDebut|date('d/m/Y à H:i') }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="bi bi-geo-alt-fill"></i> Lieu
+                            </h6>
+                            <p class="fw-bold">{{ ticket.evenement.lieu }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="bi bi-currency-dollar"></i> Prix payé
+                            </h6>
+                            <p class="h5 text-success">{{ ticket.prixPaye }} TND</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="bi bi-cart-check"></i> Date d'achat
+                            </h6>
+                            <p class="fw-bold">{{ ticket.dateAchat|date('d/m/Y à H:i') }}</p>
+                        </div>
+
+                        {% if ticket.paymentMethod %}
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted mb-1">
+                                    <i class="bi bi-credit-card"></i> Méthode de paiement
+                                </h6>
+                                <p>{{ ticket.paymentMethod|capitalize }}</p>
+                            </div>
+                        {% endif %}
+
+                        {% if ticket.dateValidation %}
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted mb-1">
+                                    <i class="bi bi-check2-circle"></i> Date de validation
+                                </h6>
+                                <p>{{ ticket.dateValidation|date('d/m/Y à H:i') }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- QR Code Placeholder -->
+                    {% if ticket.isConfirmed %}
+                        <div class="text-center mb-4">
+                            <div class="bg-light p-4 rounded">
+                                <i class="bi bi-qr-code" style="font-size: 150px; color: #333;"></i>
+                                <p class="text-muted mt-2 mb-0">Présentez ce code QR à l'entrée</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        {% if ticket.isConfirmed and not ticket.evenement.isPast %}
+                            <a href="{{ path('ticket_download', {id: ticket.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-download"></i> Télécharger le billet
+                            </a>
+                            
+                            {% if not ticket.evenement.isOngoing %}
+                                <form method="post" action="{{ path('ticket_cancel', {id: ticket.id}) }}" 
+                                      onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce billet ? Cette action est irréversible.');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ ticket.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="bi bi-x-circle"></i> Annuler le billet
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <a href="{{ path('evenement_show', {id: ticket.evenement.id}) }}" class="btn btn-outline-success">
+                            <i class="bi bi-calendar-event"></i> Voir l'événement
+                        </a>
+                        
+                        <a href="{{ path('ticket_my_tickets') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour à mes billets
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center text-muted small">
+                    <i class="bi bi-info-circle"></i> Ce billet est personnel et non transférable
+                </div>
+            </div>
+
+            <!-- Event Details Card -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-info-circle"></i> À propos de l'événement
+                    </h6>
+                    <p class="card-text">{{ ticket.evenement.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

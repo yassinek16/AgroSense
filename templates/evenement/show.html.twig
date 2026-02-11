@@ -1,0 +1,209 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ evenement.titre }} - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                {% if evenement.imageUrl %}
+                    <img src="{{ evenement.imageUrl }}" class="card-img-top" alt="{{ evenement.titre }}" style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h2 text-success">{{ evenement.titre }}</h1>
+                            <span class="badge bg-secondary">{{ evenement.typeEvenement|capitalize }}</span>
+                            <span class="badge 
+                                {% if evenement.statut == 'prevu' %}bg-success
+                                {% elseif evenement.statut == 'annule' %}bg-danger
+                                {% elseif evenement.statut == 'termine' %}bg-secondary
+                                {% else %}bg-info{% endif %}">
+                                {{ evenement.statut|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <h5 class="text-muted mb-3">
+                        <i class="bi bi-card-text"></i> Description
+                    </h5>
+                    <p class="lead">{{ evenement.description }}</p>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-geo-alt-fill text-danger"></i> Lieu
+                            </h6>
+                            <p class="fw-semibold">{{ evenement.lieu }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-calendar-plus"></i> Date de début
+                            </h6>
+                            <p class="fw-semibold">{{ evenement.dateDebut|date('d/m/Y à H:i') }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-calendar-check"></i> Date de fin
+                            </h6>
+                            <p class="fw-semibold">{{ evenement.dateFin|date('d/m/Y à H:i') }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">
+                                <i class="bi bi-clock"></i> Durée
+                            </h6>
+                            {% set diff = evenement.dateFin.diff(evenement.dateDebut) %}
+                            <p class="fw-semibold">
+                                {% if diff.d > 0 %}{{ diff.d }} jour(s), {% endif %}
+                                {{ diff.h }} heure(s)
+                            </p>
+                        </div>
+                        
+                        {% if evenement.organisateur %}
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted">
+                                    <i class="bi bi-person-badge"></i> Organisateur
+                                </h6>
+                                <p class="fw-semibold">{{ evenement.organisateur.fullName }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Ticket Purchase Card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    {% if evenement.requiresTicket %}
+                        <h5 class="card-title text-success">
+                            <i class="bi bi-ticket-perforated"></i> Billetterie
+                        </h5>
+                        <div class="mb-3">
+                            <h3 class="text-primary">{{ evenement.ticketPrice }} TND</h3>
+                            <small class="text-muted">par personne</small>
+                        </div>
+                    {% else %}
+                        <h5 class="card-title text-success">
+                            <i class="bi bi-gift"></i> Événement Gratuit
+                        </h5>
+                    {% endif %}
+                    
+                    {% if evenement.capaciteMax %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><i class="bi bi-people"></i> Places disponibles</span>
+                                <strong>{{ evenement.remainingCapacity ?? 0 }}/{{ evenement.capaciteMax }}</strong>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                {% set percentage = (evenement.ticketsSold / evenement.capaciteMax * 100)|round %}
+                                <div class="progress-bar bg-success" style="width: {{ percentage }}%"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if app.user %}
+                        {% if userTicket %}
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i> Vous avez déjà un billet pour cet événement
+                            </div>
+                            <a href="{{ path('ticket_show', {id: userTicket.id}) }}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-ticket-detailed"></i> Voir mon billet
+                            </a>
+                        {% elseif evenement.isFull %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle"></i> Événement complet
+                            </div>
+                        {% elseif evenement.statut == 'annule' %}
+                            <div class="alert alert-danger">
+                                <i class="bi bi-x-circle"></i> Événement annulé
+                            </div>
+                        {% elseif evenement.isPast %}
+                            <div class="alert alert-secondary">
+                                <i class="bi bi-clock-history"></i> Événement terminé
+                            </div>
+                        {% elseif evenement.requiresTicket %}
+                            <a href="{{ path('ticket_purchase', {id: evenement.id}) }}" class="btn btn-success w-100">
+                                <i class="bi bi-cart-plus"></i> Acheter un billet
+                            </a>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Événement gratuit - Participation libre
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-person-circle"></i> Connectez-vous pour {% if evenement.requiresTicket %}acheter un billet{% else %}vous inscrire{% endif %}
+                        </div>
+                        <a href="{{ path('app_login') }}" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-box-arrow-in-right"></i> Connexion
+                        </a>
+                        <a href="{{ path('app_register') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-person-plus"></i> Inscription
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Admin Actions -->
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-tools"></i> Actions administrateur</h6>
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('evenement_edit', {id: evenement.id}) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a href="{{ path('evenement_statistics', {id: evenement.id}) }}" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-graph-up"></i> Statistiques
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="mt-3">
+                <a href="{{ path('evenement_index') }}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+{% if is_granted('ROLE_ADMIN') %}
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer l'événement <strong>"{{ evenement.titre }}"</strong> ?</p>
+                <p class="text-danger"><i class="bi bi-exclamation-triangle"></i> Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{{ path('evenement_delete', {id: evenement.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

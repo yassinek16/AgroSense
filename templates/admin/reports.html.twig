@@ -1,0 +1,361 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rapports & Analyses - Admin{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-success">
+            <i class="bi bi-file-bar-graph-fill"></i> Rapports & Analyses
+        </h1>
+        <div class="btn-group">
+            <button onclick="window.print()" class="btn btn-outline-primary">
+                <i class="bi bi-printer"></i> Imprimer
+            </button>
+            <a href="{{ path('admin_dashboard') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Time Period Selector -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar-range"></i> Période d'analyse
+                    </h5>
+                    <p class="text-muted mb-0 small">Évolution des revenus sur les 6 derniers mois</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <span class="badge bg-info p-2">
+                        {{ 'now'|date('F Y') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> Évolution des Revenus Mensuels
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Monthly Revenue Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table"></i> Détails des Revenus par Mois
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mois</th>
+                                    <th class="text-center">Nombre de billets vendus</th>
+                                    <th class="text-end">Revenus (TND)</th>
+                                    <th class="text-center">Évolution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set previousRevenue = 0 %}
+                                {% for data in monthlyRevenue %}
+                                    <tr>
+                                        <td><strong>{{ data.month }}</strong></td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">
+                                                {# This would need ticket count per month - simplified for now #}
+                                                -
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong class="text-success">{{ data.revenue|number_format(2) }} TND</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            {% if previousRevenue > 0 %}
+                                                {% set diff = ((data.revenue - previousRevenue) / previousRevenue * 100)|round(1) %}
+                                                {% if diff > 0 %}
+                                                    <span class="text-success">
+                                                        <i class="bi bi-arrow-up"></i> +{{ diff }}%
+                                                    </span>
+                                                {% elseif diff < 0 %}
+                                                    <span class="text-danger">
+                                                        <i class="bi bi-arrow-down"></i> {{ diff }}%
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-muted">
+                                                        <i class="bi bi-dash"></i> 0%
+                                                    </span>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                            {% set previousRevenue = data.revenue %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr class="table-light fw-bold">
+                                    <td>TOTAL</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-end">
+                                        {% set total = 0 %}
+                                        {% for data in monthlyRevenue %}
+                                            {% set total = total + data.revenue %}
+                                        {% endfor %}
+                                        <strong class="text-success fs-5">{{ total|number_format(2) }} TND</strong>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-currency-dollar"></i> Revenu Moyen par Mois
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    {% set total = 0 %}
+                    {% for data in monthlyRevenue %}
+                        {% set total = total + data.revenue %}
+                    {% endfor %}
+                    {% set average = total / (monthlyRevenue|length) %}
+                    <h2 class="text-primary mb-0">{{ average|number_format(2) }} TND</h2>
+                    <small class="text-muted">Sur {{ monthlyRevenue|length }} mois</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-graph-up-arrow"></i> Meilleur Mois
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    {% set bestMonth = monthlyRevenue|sort((a, b) => b.revenue <=> a.revenue)|first %}
+                    <h2 class="text-success mb-0">{{ bestMonth.revenue|number_format(2) }} TND</h2>
+                    <small class="text-muted">{{ bestMonth.month }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-graph-down-arrow"></i> Mois le Plus Bas
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    {% set worstMonth = monthlyRevenue|sort((a, b) => a.revenue <=> b.revenue)|first %}
+                    <h2 class="text-info mb-0">{{ worstMonth.revenue|number_format(2) }} TND</h2>
+                    <small class="text-muted">{{ worstMonth.month }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Growth Analysis -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart-line"></i> Analyse de Croissance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set firstMonth = monthlyRevenue|first %}
+                    {% set lastMonth = monthlyRevenue|last %}
+                    {% if firstMonth.revenue > 0 %}
+                        {% set growthRate = ((lastMonth.revenue - firstMonth.revenue) / firstMonth.revenue * 100)|round(1) %}
+                        
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6>Taux de croissance sur la période</h6>
+                                <p class="text-muted mb-0">
+                                    De {{ firstMonth.month }} ({{ firstMonth.revenue|number_format(2) }} TND) 
+                                    à {{ lastMonth.month }} ({{ lastMonth.revenue|number_format(2) }} TND)
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                {% if growthRate > 0 %}
+                                    <h2 class="text-success mb-0">
+                                        <i class="bi bi-arrow-up-circle"></i> +{{ growthRate }}%
+                                    </h2>
+                                {% elseif growthRate < 0 %}
+                                    <h2 class="text-danger mb-0">
+                                        <i class="bi bi-arrow-down-circle"></i> {{ growthRate }}%
+                                    </h2>
+                                {% else %}
+                                    <h2 class="text-muted mb-0">
+                                        <i class="bi bi-dash-circle"></i> 0%
+                                    </h2>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">Données insuffisantes pour calculer la croissance</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb"></i> Recommandations & Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-warning">
+                                <i class="bi bi-star-fill"></i> Points Forts
+                            </h6>
+                            <ul>
+                                {% set bestMonth = monthlyRevenue|sort((a, b) => b.revenue <=> a.revenue)|first %}
+                                <li>Meilleur mois : <strong>{{ bestMonth.month }}</strong> avec {{ bestMonth.revenue|number_format(2) }} TND</li>
+                                {% set total = 0 %}
+                                {% for data in monthlyRevenue %}
+                                    {% set total = total + data.revenue %}
+                                {% endfor %}
+                                <li>Revenus totaux sur 6 mois : <strong>{{ total|number_format(2) }} TND</strong></li>
+                                {% if growthRate is defined and growthRate > 0 %}
+                                    <li>Tendance positive avec une croissance de <strong>{{ growthRate }}%</strong></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-warning">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Opportunités d'Amélioration
+                            </h6>
+                            <ul>
+                                {% set worstMonth = monthlyRevenue|sort((a, b) => a.revenue <=> b.revenue)|first %}
+                                {% if worstMonth.revenue < average %}
+                                    <li>Renforcer les activités pendant les mois faibles comme <strong>{{ worstMonth.month }}</strong></li>
+                                {% endif %}
+                                <li>Analyser les événements les plus rentables pour reproduire leur succès</li>
+                                <li>Considérer des promotions pendant les périodes creuses</li>
+                                <li>Augmenter la capacité des événements populaires</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .btn, .no-print {
+            display: none !important;
+        }
+        
+        .card {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+    }
+</style>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Revenue Chart
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const monthlyData = {{ monthlyRevenue|json_encode|raw }};
+    
+    const labels = monthlyData.map(item => item.month);
+    const revenues = monthlyData.map(item => parseFloat(item.revenue));
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenus (TND)',
+                data: revenues,
+                backgroundColor: 'rgba(45, 106, 79, 0.1)',
+                borderColor: 'rgba(45, 106, 79, 1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: 'rgba(45, 106, 79, 1)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Revenus: ' + context.parsed.y.toFixed(2) + ' TND';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(2) + ' TND';
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ evenement.titre }} - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Modifier l'événement
+                    </h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                        
+                        <div class="row">
+                            <!-- Titre -->
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.titre, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.titre) }}
+                                {{ form_errors(form.titre) }}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.description, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.description) }}
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <!-- Type et Statut -->
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.typeEvenement, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.typeEvenement) }}
+                                {{ form_errors(form.typeEvenement) }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.statut, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.statut) }}
+                                {{ form_errors(form.statut) }}
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.dateDebut) }}
+                                {{ form_errors(form.dateDebut) }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.dateFin, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.dateFin) }}
+                                {{ form_errors(form.dateFin) }}
+                            </div>
+
+                            <!-- Lieu et Capacité -->
+                            <div class="col-md-8 mb-3">
+                                {{ form_label(form.lieu, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.lieu) }}
+                                {{ form_errors(form.lieu) }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                {{ form_label(form.capaciteMax, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.capaciteMax) }}
+                                {{ form_errors(form.capaciteMax) }}
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.imageUrl, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.imageUrl) }}
+                                {{ form_errors(form.imageUrl) }}
+                            </div>
+
+                            <!-- Ticketing Section -->
+                            <div class="col-12 mb-3">
+                                <hr class="my-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-ticket-perforated"></i> Billetterie
+                                </h5>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form_widget(form.requiresTicket, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                                    {{ form_label(form.requiresTicket, null, {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
+                                </div>
+                                {{ form_errors(form.requiresTicket) }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.ticketPrice, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                {{ form_widget(form.ticketPrice) }}
+                                {{ form_errors(form.ticketPrice) }}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Current Stats (if event has tickets) -->
+                        {% if evenement.tickets|length > 0 %}
+                            <div class="alert alert-info mb-4">
+                                <h6 class="alert-heading">
+                                    <i class="bi bi-info-circle"></i> Statistiques actuelles
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Billets vendus:</strong> {{ evenement.ticketsSold }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Revenus:</strong> {{ evenement.totalRevenue|number_format(2) }} TND
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="{{ path('evenement_statistics', {id: evenement.id}) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-graph-up"></i> Voir statistiques
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <div class="btn-group">
+                                <a href="{{ path('evenement_show', {id: evenement.id}) }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-eye"></i> Voir
+                                </a>
+                                <a href="{{ path('evenement_index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-arrow-left"></i> Liste
+                                </a>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

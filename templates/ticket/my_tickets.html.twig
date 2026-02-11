@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Billets - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <h1 class="mb-4 text-success">
+        <i class="bi bi-ticket-perforated"></i> Mes Billets
+    </h1>
+
+    {% if tickets is empty %}
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Vous n'avez aucun billet</h4>
+            <p class="text-muted">Consultez nos événements pour réserver votre place</p>
+            <a href="{{ path('evenement_index') }}" class="btn btn-primary mt-3">
+                <i class="bi bi-calendar-event"></i> Voir les événements
+            </a>
+        </div>
+    {% else %}
+        <div class="row">
+            {% for ticket in tickets %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 {% if ticket.isCancelled %}border-danger{% elseif ticket.isConfirmed %}border-success{% else %}border-warning{% endif %}">
+                        <div class="card-header {% if ticket.isCancelled %}bg-danger{% elseif ticket.isConfirmed %}bg-success{% else %}bg-warning{% endif %} text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">{{ ticket.referenceTicket }}</span>
+                                <span class="badge bg-white text-dark">
+                                    {% if ticket.isCancelled %}
+                                        Annulé
+                                    {% elseif ticket.isConfirmed %}
+                                        Confirmé
+                                    {% else %}
+                                        En attente
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ ticket.evenement.titre }}</h5>
+                            <p class="card-text text-muted">{{ ticket.evenement.typeEvenement|capitalize }}</p>
+                            
+                            <div class="mb-3">
+                                <div class="small mb-1">
+                                    <i class="bi bi-geo-alt"></i> {{ ticket.evenement.lieu }}
+                                </div>
+                                <div class="small mb-1">
+                                    <i class="bi bi-calendar-event"></i> {{ ticket.evenement.dateDebut|date('d/m/Y à H:i') }}
+                                </div>
+                                <div class="small mb-1">
+                                    <i class="bi bi-cart-check"></i> Acheté le {{ ticket.dateAchat|date('d/m/Y') }}
+                                </div>
+                                <div class="small">
+                                    <i class="bi bi-currency-dollar"></i> <strong>{{ ticket.prixPaye }} TND</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('ticket_show', {id: ticket.id}) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-eye"></i> Voir le billet
+                                </a>
+                                
+                                {% if ticket.isConfirmed and not ticket.evenement.isPast %}
+                                    <a href="{{ path('ticket_download', {id: ticket.id}) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download"></i> Télécharger
+                                    </a>
+                                    
+                                    {% if not ticket.evenement.isOngoing %}
+                                        <form method="post" action="{{ path('ticket_cancel', {id: ticket.id}) }}" 
+                                              onsubmit="return confirm('Êtes-vous sûr de vouloir annuler ce billet ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ ticket.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="bi bi-x-circle"></i> Annuler
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted small">
+                            {% if ticket.evenement.isOngoing %}
+                                <i class="bi bi-clock"></i> Événement en cours
+                            {% elseif ticket.evenement.isPast %}
+                                <i class="bi bi-check-circle"></i> Événement terminé
+                            {% else %}
+                                <i class="bi bi-hourglass-split"></i> À venir
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
