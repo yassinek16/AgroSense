@@ -1,0 +1,23 @@
+
+{% extends 'back/back_base.html.twig' %}
+
+{% block title %}Ajouter un Produit{% endblock %}
+
+{% block page_title %}Ajouter un Produit{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Nouveau produit
+                </h5>
+            </div>
+            <div class="card-body">
+                {{ include('back/produit/_form.html.twig', {'button_label': 'Ajouter le produit'}) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
