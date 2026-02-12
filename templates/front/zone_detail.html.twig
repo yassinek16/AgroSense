@@ -1,0 +1,240 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ zone.nomZone }} - AgriCulture{% endblock %}
+
+{% block body %}
+<!-- Breadcrumb -->
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_front_index') }}">Accueil</a></li>
+            <li class="breadcrumb-item">
+                {% if zone.serre %}
+                    <a href="{{ path('app_front_serre_detail', {'id': zone.serre.id}) }}">{{ zone.serre.nomSerre }}</a>
+                {% else %}
+                    Serres
+                {% endif %}
+            </li>
+            <li class="breadcrumb-item active">{{ zone.nomZone }}</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Zone Detail Section -->
+<section class="py-5">
+    <div class="container">
+            <div class="col-lg-8">
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="bg-info rounded-circle p-4" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-geo-alt text-white" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <div class="ms-4 flex-grow-1">
+                                <h1 class="display-5 fw-bold mb-2">{{ zone.nomZone }}</h1>
+                                <p class="lead text-muted mb-3">
+                                    {{ zone.typeZone }}
+                                </p>
+                                <div>
+                                    <span class="badge bg-info me-2" style="font-size: 1rem;">
+                                        <i class="bi bi-check-circle me-1"></i>{{ zone.etatZone|capitalize }}
+                                    </span>
+                                    <span class="badge bg-primary" style="font-size: 1rem;">
+                                        <i class="bi bi-tag me-1"></i>{{ zone.cultureAssociee }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Zone Information -->
+                        <hr class="my-4">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Détails de la Zone</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <strong>Type de zone:</strong>
+                                        <span class="float-end">{{ zone.typeZone }}</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Culture associée:</strong>
+                                        <span class="float-end">
+                                            <span class="badge bg-primary">{{ zone.cultureAssociee }}</span>
+                                        </span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Superficie:</strong>
+                                        <span class="float-end">{{ zone.superficie }} m²</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>État:</strong>
+                                        <span class="float-end">
+                                            {% if zone.etatZone == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ zone.etatZone|capitalize }}</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Localisation</h5>
+                                <ul class="list-unstyled">
+                                    {% if zone.serre %}
+                                        <li class="mb-3">
+                                            <strong>🏠 Serre:</strong><br>
+                                            <a href="{{ path('app_front_serre_detail', {'id': zone.serre.id}) }}" class="btn btn-sm btn-outline-success mt-2">
+                                                {{ zone.serre.nomSerre }}
+                                                <i class="bi bi-arrow-right ms-1"></i>
+                                            </a>
+                                        </li>
+                                        <li class="mb-3">
+                                            <strong>📍 Localisation:</strong>
+                                            <span class="d-block">{{ zone.serre.localisation }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="mb-3 alert alert-warning small">
+                                            <i class="bi bi-exclamation-triangle me-2"></i>
+                                            Cette zone n'est pas associée à une serre.
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations Supplémentaires -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-bar-chart me-2"></i>Statistiques
+                        </h5>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <div class="display-6 text-success mb-2">
+                                        <i class="bi bi-graph-up"></i>
+                                    </div>
+                                    <h6>Superficie</h6>
+                                    <p class="display-6 fw-bold">{{ zone.superficie }}</p>
+                                    <small class="text-muted">m²</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <div class="display-6 text-info mb-2">
+                                        <i class="bi bi-leaf"></i>
+                                    </div>
+                                    <h6>Culture</h6>
+                                    <p class="display-6 fw-bold text-info">{{ zone.cultureAssociee }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 bg-light rounded">
+                                    <div class="display-6 text-primary mb-2">
+                                        {% if zone.etatZone == 'active' %}
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% else %}
+                                            <i class="bi bi-exclamation-circle-fill text-warning"></i>
+                                        {% endif %}
+                                    </div>
+                                    <h6>État</h6>
+                                    <p class="h6 fw-bold">{{ zone.etatZone|capitalize }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Propriétaire
+                        </h5>
+                        <div class="small">
+                            <p class="mb-2">
+                                <strong>Agriculteur:</strong><br>
+                                <span class="h6">{{ zone.user.firstName }} {{ zone.user.lastName }}</span>
+                            </p>
+                            <hr>
+                            <p class="mb-2">
+                                <strong>Email:</strong><br>
+                                <a href="mailto:{{ zone.user.email }}" class="text-decoration-none">
+                                    {{ zone.user.email }}
+                                </a>
+                            </p>
+                            {% if zone.user.phone %}
+                                <hr>
+                                <p class="mb-2">
+                                    <strong>Téléphone:</strong><br>
+                                    <a href="tel:{{ zone.user.phone }}" class="text-decoration-none">
+                                        {{ zone.user.phone }}
+                                    </a>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone Status Card -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-heart-pulse me-2"></i>État de la Zone
+                        </h5>
+                        <div>
+                            {% if zone.etatZone == 'active' %}
+                                <div class="alert alert-success mb-0" role="alert">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    <strong>Zone Active</strong>
+                                    <p class="small mb-0 mt-2">Cette zone est actuellement opérationnelle et productive.</p>
+                                </div>
+                            {% elseif zone.etatZone == 'inactive' %}
+                                <div class="alert alert-warning mb-0" role="alert">
+                                    <i class="bi bi-exclamation-circle me-2"></i>
+                                    <strong>Zone Inactive</strong>
+                                    <p class="small mb-0 mt-2">Cette zone n'est pas actuellement opérationnelle.</p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-secondary mb-0" role="alert">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>{{ zone.etatZone|capitalize }}</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <a href="{{ path('app_front_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+                </a>
+                {% if zone.serre %}
+                    <a href="{{ path('app_front_serre_detail', {'id': zone.serre.id}) }}" class="btn btn-outline-success ms-2">
+                        <i class="bi bi-building me-2"></i>Voir la serre
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock %}

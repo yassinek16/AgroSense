@@ -12,9 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
 #[Route('/agriculteur')]
+#[IsGranted('ROLE_USER')]
 class AgriculteurController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
@@ -29,9 +31,11 @@ class AgriculteurController extends AbstractController
     #[Route('/dashboard', name: 'app_agriculteur_dashboard')]
     public function dashboard(): Response
     {
-        // Récupérer toutes les serres directement depuis l'EntityManager
-        $serres = $this->entityManager->getRepository(Serre::class)->findAll();
-        $zones = $this->entityManager->getRepository(Zone::class)->findAll();
+        $user = $this->getUser();
+        
+        // Récupérer les serres et zones de l'utilisateur courant
+        $serres = $this->entityManager->getRepository(Serre::class)->findBy(['user' => $user]);
+        $zones = $this->entityManager->getRepository(Zone::class)->findBy(['user' => $user]);
 
         // Mini historique - informations récentes
         $historique = [];
@@ -159,8 +163,10 @@ class AgriculteurController extends AbstractController
     #[Route('/serres', name: 'app_agriculteur_serres')]
     public function serres(Request $request): Response
     {
-        // Récupérer toutes les serres
-        $serres = $this->entityManager->getRepository(Serre::class)->findAll();
+        $user = $this->getUser();
+        
+        // Récupérer les serres de l'utilisateur courant
+        $serres = $this->entityManager->getRepository(Serre::class)->findBy(['user' => $user]);
 
         // Filtrage
         $search = $request->query->get('search');
@@ -201,8 +207,10 @@ class AgriculteurController extends AbstractController
     #[Route('/zones', name: 'app_agriculteur_zones')]
     public function zones(Request $request): Response
     {
-        // Récupérer toutes les zones
-        $zones = $this->entityManager->getRepository(Zone::class)->findAll();
+        $user = $this->getUser();
+        
+        // Récupérer les zones de l'utilisateur courant
+        $zones = $this->entityManager->getRepository(Zone::class)->findBy(['user' => $user]);
 
         // Filtrage
         $search = $request->query->get('search');
@@ -255,12 +263,14 @@ class AgriculteurController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $data = $request->request->all();
+            $user = $this->getUser();
             
             $serre = new Serre();
             $serre->setNomSerre(trim($data['nomSerre']));
             $serre->setLocalisation(trim($data['localisation']));
             $serre->setSurface((float)$data['surface']);
             $serre->setEtatSerre(trim($data['etatSerre']));
+            $serre->setUser($user);
             
             if (!empty($data['dateMiseEnService'])) {
                 $serre->setDateMiseEnService(new \DateTime($data['dateMiseEnService']));
@@ -294,6 +304,11 @@ class AgriculteurController extends AbstractController
     #[Route('/serre/{id}/edit', name: 'app_agriculteur_serre_edit')]
     public function editSerre(Serre $serre, Request $request): Response
     {
+        // Vérifier que l'utilisateur est propriétaire de la serre
+        if ($serre->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette serre.');
+        }
+        
         if ($request->isMethod('POST')) {
             $data = $request->request->all();
             
@@ -342,6 +357,11 @@ class AgriculteurController extends AbstractController
     #[Route('/serre/{id}/delete', name: 'app_agriculteur_serre_delete')]
     public function deleteSerre(Serre $serre, Request $request): Response
     {
+        // Vérifier que l'utilisateur est propriétaire de la serre
+        if ($serre->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette serre.');
+        }
+        
         if ($request->isMethod('POST')) {
             // Récupérer et supprimer d'abord toutes les zones associées
             $zones = $this->entityManager->getRepository(Zone::class)->findBy(['serre' => $serre]);
@@ -364,6 +384,11 @@ class AgriculteurController extends AbstractController
     #[Route('/serre/{id}', name: 'app_agriculteur_serre_details')]
     public function serreDetails(Serre $serre): Response
     {
+        // Vérifier que l'utilisateur est propriétaire de la serre
+        if ($serre->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette serre.');
+        }
+        
         $zones = $this->entityManager->getRepository(Zone::class)->findBy(['serre' => $serre]);
         $surfaceUtilisee = array_sum(array_map(fn($z) => $z->getSuperficie(), $zones));
         $surfaceRestante = $serre->getSurface() - $surfaceUtilisee;
@@ -379,6 +404,8 @@ class AgriculteurController extends AbstractController
     #[Route('/zone/new', name: 'app_agriculteur_zone_new')]
     public function newZone(Request $request): Response
     {
+        $user = $this->getUser();
+        
         if ($request->isMethod('POST')) {
             $data = $request->request->all();
             
@@ -409,12 +436,18 @@ class AgriculteurController extends AbstractController
             $zone->setSuperficie((float)$data['superficie']);
             $zone->setEtatZone(trim($data['etatZone']));
             $zone->setCultureAssociee(trim($data['cultureAssociee']));
+            $zone->setUser($user);
             
             // Association de la serre si fournie
             if (!empty($data['serre'])) {
                 $serre = $this->entityManager->getRepository(Serre::class)->find($data['serre']);
                 if (!$serre) {
                     $this->addFlash('error', 'Serre non trouvée.');
+                    return $this->redirectToRoute('app_agriculteur_zone_new');
+                }
+                // Vérifier que la serre appartient à l'utilisateur
+                if ($serre->getUser() !== $user) {
+                    $this->addFlash('error', 'Vous n\'avez pas accès à cette serre.');
                     return $this->redirectToRoute('app_agriculteur_zone_new');
                 }
                 $zone->setSerre($serre);
@@ -432,7 +465,8 @@ class AgriculteurController extends AbstractController
             }
         }
 
-        $serres = $this->entityManager->getRepository(Serre::class)->findAll();
+        // Récupérer uniquement les serres de l'utilisateur courant
+        $serres = $this->entityManager->getRepository(Serre::class)->findBy(['user' => $user]);
 
         return $this->render('agriculteur/zone_form.html.twig', [
             'zone' => null,
@@ -444,6 +478,13 @@ class AgriculteurController extends AbstractController
     #[Route('/zone/{id}/edit', name: 'app_agriculteur_zone_edit')]
     public function editZone(Zone $zone, Request $request): Response
     {
+        $user = $this->getUser();
+        
+        // Vérifier que l'utilisateur est propriétaire de la zone
+        if ($zone->getUser() !== $user) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette zone.');
+        }
+        
         if ($request->isMethod('POST')) {
             $data = $request->request->all();
             
@@ -460,6 +501,11 @@ class AgriculteurController extends AbstractController
                     $this->addFlash('error', 'Serre non trouvée.');
                     return $this->redirectToRoute('app_agriculteur_zone_edit', ['id' => $zone->getId()]);
                 }
+                // Vérifier que la serre appartient à l'utilisateur
+                if ($serre->getUser() !== $user) {
+                    $this->addFlash('error', 'Vous n\'avez pas accès à cette serre.');
+                    return $this->redirectToRoute('app_agriculteur_zone_edit', ['id' => $zone->getId()]);
+                }
                 $zone->setSerre($serre);
             }
 
@@ -469,7 +515,8 @@ class AgriculteurController extends AbstractController
             return $this->redirectToRoute('app_agriculteur_serre_details', ['id' => $zone->getSerre()->getId()]);
         }
 
-        $serres = $this->entityManager->getRepository(Serre::class)->findAll();
+        // Récupérer uniquement les serres de l'utilisateur courant
+        $serres = $this->entityManager->getRepository(Serre::class)->findBy(['user' => $user]);
 
         return $this->render('agriculteur/zone_form.html.twig', [
             'zone' => $zone,
@@ -481,6 +528,11 @@ class AgriculteurController extends AbstractController
     #[Route('/zone/{id}/delete', name: 'app_agriculteur_zone_delete')]
     public function deleteZone(Zone $zone, Request $request): Response
     {
+        // Vérifier que l'utilisateur est propriétaire de la zone
+        if ($zone->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette zone.');
+        }
+        
         if ($request->isMethod('POST')) {
             $serreId = $zone->getSerre()->getId();
             $this->entityManager->remove($zone);

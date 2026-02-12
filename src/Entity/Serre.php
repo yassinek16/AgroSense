@@ -36,11 +36,16 @@ private ?string $etatSerre = 'inactif';
 #[ORM\Column(type: 'date', nullable: true)]
 #[Assert\NotNull(message: 'La date de mise en service est obligatoire')]
 private ?\DateTimeInterface $dateMiseEnService = null;
+
     /**
      * @var Collection<int, Zone>
      */
     #[ORM\OneToMany(targetEntity: Zone::class, mappedBy: 'serre')]
     private Collection $zones;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'serres')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
 
     public function __construct()
     {
@@ -137,6 +142,17 @@ public function setDateMiseEnService(?\DateTimeInterface $dateMiseEnService): st
             }
         }
 
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
 }

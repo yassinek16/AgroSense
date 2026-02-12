@@ -96,12 +96,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $commandes;
 
+    /**
+     * @var Collection<int, Serre>
+     */
+    #[ORM\OneToMany(targetEntity: Serre::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $serres;
+
+    /**
+     * @var Collection<int, Zone>
+     */
+    #[ORM\OneToMany(targetEntity: Zone::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $zones;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->tickets = new ArrayCollection();
         $this->organizedEvents = new ArrayCollection();
         $this->commandes = new ArrayCollection();
+        $this->serres = new ArrayCollection();
+        $this->zones = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -289,6 +303,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->commandes->removeElement($commande)) {
             if ($commande->getUser() === $this) {
                 $commande->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Serre>
+     */
+    public function getSerres(): Collection
+    {
+        return $this->serres;
+    }
+
+    public function addSerre(Serre $serre): static
+    {
+        if (!$this->serres->contains($serre)) {
+            $this->serres->add($serre);
+            $serre->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeSerre(Serre $serre): static
+    {
+        if ($this->serres->removeElement($serre)) {
+            if ($serre->getUser() === $this) {
+                $serre->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Zone>
+     */
+    public function getZones(): Collection
+    {
+        return $this->zones;
+    }
+
+    public function addZone(Zone $zone): static
+    {
+        if (!$this->zones->contains($zone)) {
+            $this->zones->add($zone);
+            $zone->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeZone(Zone $zone): static
+    {
+        if ($this->zones->removeElement($zone)) {
+            if ($zone->getUser() === $this) {
+                $zone->setUser(null);
             }
         }
         return $this;

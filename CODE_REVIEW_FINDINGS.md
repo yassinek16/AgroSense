@@ -11,7 +11,8 @@
 The AgroSense system has been reviewed comprehensively. The codebase structure is generally well-organized, but **several critical security and architectural issues** have been identified that need immediate attention.
 
 **Key Findings:**
-- ⚠️ **5 CRITICAL SECURITY ISSUES** 
+
+- ⚠️ **5 CRITICAL SECURITY ISSUES**
 - ⚠️ **3 ARCHITECTURAL DESIGN ISSUES**
 - ✅ **Strong Points:** Good validation, proper ORM usage, consistent naming
 
@@ -24,6 +25,7 @@ The AgroSense system has been reviewed comprehensively. The codebase structure i
 **Location:** `src/Controller/Front/AgriculteurController.php`
 
 **Issue:** The controller class has NO `#[IsGranted]` decorator
+
 ```php
 #[Route('/agriculteur')]
 class AgriculteurController extends AbstractController
@@ -31,12 +33,14 @@ class AgriculteurController extends AbstractController
     // Missing: #[IsGranted('ROLE_USER')]
 ```
 
-**Impact:** 
+**Impact:**
+
 - All routes are accessible to unauthenticated users
 - Unauthenticated visitors can access `/agriculteur/dashboard`, `/agriculteur/serres`, etc.
 - **SECURITY BREACH**
 
 **Fix:** Add class-level security decorator:
+
 ```php
 #[Route('/agriculteur')]
 #[IsGranted('ROLE_USER')]
@@ -50,6 +54,7 @@ class AgriculteurController extends AbstractController
 **Location:** `src/Controller/Front/AgriculteurController.php` lines 33-34, 162-163, 204-205
 
 **Issue:** All methods retrieve ALL serres/zones without user filtering
+
 ```php
 public function dashboard(): Response
 {
@@ -64,6 +69,7 @@ public function dashboard(): Response
 **Actual Behavior:** Farmer can see all greenhouse data in the system
 
 **Impact:**
+
 - **CRITICAL DATA PRIVACY BREACH**
 - Farmers can view other farmers' greenhouses
 - Farmers can edit/delete other farmers' data
@@ -74,13 +80,15 @@ public function dashboard(): Response
 
 ### 3. 🔴 NO USER RELATIONSHIP ON Serre & Zone ENTITIES
 
-**Location:** 
+**Location:**
+
 - `src/Entity/Serre.php` (no User relationship)
 - `src/Entity/Zone.php` (no User relationship)
 
 **Issue:** Serre and Zone entities have no way to track which user owns them
 
 **Current Relationships:**
+
 - User → OneToMany → Ticket ✅
 - User → OneToMany → Commande ✅
 - User → OneToMany → Evenement ✅
@@ -88,16 +96,18 @@ public function dashboard(): Response
 - **User → ??? → Zone ❌ MISSING**
 
 **Expected Design:**
+
 ```
 User (1-to-Many)
   ├── Ticket
-  ├── Commande  
+  ├── Commande
   ├── Evenement
   ├── Serre      ← MISSING
   └── Zone       ← MISSING
 ```
 
 **Impact:**
+
 - Impossible to implement proper authorization
 - Multi-tenant data isolation impossible
 - All farmers share same database without isolation
@@ -107,6 +117,7 @@ User (1-to-Many)
 ### 4. 🔴 ORPHANED ZONES POSSIBLE
 
 **Location:** `src/Entity/Zone.php` line 43-45
+
 ```php
 #[ORM\ManyToOne(inversedBy: 'zones')]
 #[ORM\JoinColumn(name: 'serre_id', referencedColumnName: 'id', nullable: true)]
@@ -114,6 +125,7 @@ private ?Serre $serre = null;  // ← nullable=true ALLOWS orphaned zones
 ```
 
 **Also in Form:** `src/Form/ZoneType.php` - serre is not required
+
 ```php
 ->add('serre', EntityType::class, [
     'required' => true,  // ← Form says required
@@ -124,11 +136,13 @@ private ?Serre $serre = null;  // ← nullable=true ALLOWS orphaned zones
 **CONTRADICTION:** Form requires it, but database allows NULL
 
 **Problem:**
+
 - Zones can exist without a parent Serre
 - Creates orphaned/invalid data
 - Violates database integrity
 
 **Solutions:**
+
 1. Make Serre required in BOTH form and database
 2. OR explicitly support orphaned zones with validation rules
 
@@ -139,6 +153,7 @@ private ?Serre $serre = null;  // ← nullable=true ALLOWS orphaned zones
 **Location:** `src/Controller/Admin/AdminSerreController.php` lines 49-51
 
 **Issue:** Admin controller also doesn't filter by user
+
 ```php
 public function serres(Request $request): Response
 {
@@ -161,6 +176,7 @@ public function serres(Request $request): Response
 ### Issue 6: ⚠️ Session-Based Cart Implementation
 
 **Location:** `templates/base.html.twig` line 236-240 (cart badge using session)
+
 ```twig
 {% set cart_count = app.session.get('cart')|length %}
 {% if cart_count > 0 %}
@@ -169,15 +185,18 @@ public function serres(Request $request): Response
 ```
 
 **Problem:**
+
 - Shopping cart stored in SESSION (volatile, lost on logout)
 - Should be persisted to database for user profile
 
 **Impact:**
+
 - User loses cart when session expires
 - Cart not visible across devices
 - No order history for abandoned carts
 
 **Recommendation:**
+
 - Add Cart entity with User relationship
 - Persist cart items to database
 
@@ -186,6 +205,7 @@ public function serres(Request $request): Response
 ### Issue 7: ⚠️ DateTime Inconsistency in Commande
 
 **Location:** `src/Entity/Commande.php` lines 32-34
+
 ```php
 #[ORM\Column(type: Types::DATETIME_MUTABLE)]
 private ?\DateTimeInterface $dateCommande = null;
@@ -195,8 +215,9 @@ private ?\DateTimeImmutable $createdAt = null;  // ← Different type
 ```
 
 **Problem:**
+
 - Uses `\DateTimeInterface` (mutable)
-- Uses `\DateTimeImmutable` (immutable)  
+- Uses `\DateTimeImmutable` (immutable)
 - Inconsistent patterns
 
 **Best Practice:** Use immutable for audit trails/creation dates
@@ -210,6 +231,7 @@ private ?\DateTimeImmutable $createdAt = null;  // ← Different type
 **Location:** `src/Controller/UserProfileController.php`
 
 **Issue:** Method return type vs actual implementation
+
 ```php
 public function myOrders(CommandeRepository $commandeRepository): Response
 {
@@ -278,6 +300,7 @@ ActivityLog
 ```
 
 **Assessment:**
+
 - ✅ Ticket, Commande relationship chains are solid
 - ✅ Event system properly linked to User (organizer)
 - ❌ Serre/Zone NOT linked to User
@@ -290,6 +313,7 @@ ActivityLog
 ### Authentication ✅ GOOD
 
 Controllers properly protected:
+
 ```
 ✅ TicketController      - #[IsGranted('ROLE_USER')]
 ✅ CommandeController    - #[IsGranted('ROLE_ADMIN')]
@@ -300,6 +324,7 @@ Controllers properly protected:
 ### Authorization ✅ GOOD (Mostly)
 
 User ownership checks present:
+
 ```
 ✅ UserProfileController::orderDetails()  - checks $order->getUser() === $this->getUser()
 ✅ TicketController::show()              - checks $ticket->getUser() === $this->getUser()
@@ -328,12 +353,14 @@ $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
 **File:** `templates/base.html.twig`
 
 ✅ **Strengths:**
+
 - Admin dropdown (only shows if ROLE_ADMIN)
 - User dropdown (only shows if authenticated)
 - CSS variable theming (green colors consistent)
 - Proper Bootstrap classes
 
 ✅ **User Access Control:**
+
 ```twig
 {% if app.user and app.user.hasRole('ROLE_ADMIN') %}
     <!-- Admin Dropdown Menu -->
@@ -347,6 +374,7 @@ $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
 ```
 
 **Issue:** Method call `hasRole()` - verify this exists in User entity
+
 ```php
 // User.php line 293
 public function hasRole(string $role): bool
@@ -363,11 +391,13 @@ public function hasRole(string $role): bool
 **File:** `templates/agriculteur/dashboard.html.twig`
 
 ❌ **Issue:** Extends `agriculteur/base.html.twig` which also has sidebar just like admin
+
 - Creates redundant code
 - Both use green theme (correct)
 - But no data isolation shown in template
 
 ✅ **Statistics Tracking:**
+
 ```twig
 <div class="stat-card">
     <div class="number">{{ stats.totalSerres }}</div>
@@ -382,12 +412,14 @@ This works IF controller properly filters by user (which it doesn't)
 ## FORM VALIDATION ANALYSIS
 
 ### SerreType ✅ GOOD
+
 ```php
 ->add('nomSerre', TextType::class, [...required: false...])
 // Works with entity validators
 ```
 
 ### ZoneType ⚠️ MIXED
+
 ```php
 ->add('serre', EntityType::class, [
     'required' => true,  // Form requires it
@@ -397,16 +429,19 @@ This works IF controller properly filters by user (which it doesn't)
 ```
 
 ### CommandeType ✅ GOOD
+
 - Proper decimal handling
 - Min/max constraints
 - Validates total range
 
 ### EvenementType ✅ GOOD
+
 - Proper date validation
 - Choice constraints for status
 - Checkbox for ticket requirement
 
 ### ProduitType ✅ GOOD
+
 - File upload with size constraints
 - MIME type validation
 - Proper decimal handling for price
@@ -418,6 +453,7 @@ This works IF controller properly filters by user (which it doesn't)
 ### CRITICAL (Fix Immediately)
 
 1. **Add @IsGranted decorator to AgriculteurController**
+
    ```php
    #[Route('/agriculteur')]
    #[IsGranted('ROLE_USER')]
@@ -425,6 +461,7 @@ This works IF controller properly filters by user (which it doesn't)
    ```
 
 2. **Add User relationship to Serre entity**
+
    ```php
    #[ORM\ManyToOne(inversedBy: 'serres')]
    #[ORM\JoinColumn(nullable: false)]
@@ -432,6 +469,7 @@ This works IF controller properly filters by user (which it doesn't)
    ```
 
 3. **Add User relationship to Zone entity**
+
    ```php
    #[ORM\ManyToOne(inversedBy: 'zones')]
    #[ORM\JoinColumn(nullable: false)]
@@ -439,6 +477,7 @@ This works IF controller properly filters by user (which it doesn't)
    ```
 
 4. **Filter Agriculteur methods by current user**
+
    ```php
    public function dashboard(): Response
    {
@@ -522,24 +561,27 @@ This works IF controller properly filters by user (which it doesn't)
 ### To Fix Relationships:
 
 1. **Create migration:**
+
 ```bash
 php bin/console make:migration AddUserToSerre
 php bin/console make:migration AddUserToZone
 ```
 
 2. **Migration content:**
+
 ```php
 // DOWN: Drop the columns
 ALTER TABLE serre DROP FOREIGN KEY FK_serre_user;
 ALTER TABLE serre DROP COLUMN user_id;
 
 // UP: Add the columns with proper constraints
-ALTER TABLE serre 
+ALTER TABLE serre
     ADD COLUMN user_id INT NOT NULL,
     ADD FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE;
 ```
 
 3. **Update Entity constructors:**
+
 ```php
 public function __construct()
 {
@@ -549,6 +591,7 @@ public function __construct()
 ```
 
 4. **Update Controllers:**
+
 ```php
 $serre = new Serre();
 $serre->setUser($this->getUser()); // ← Add this line
@@ -582,22 +625,26 @@ $serre->setNomSerre($nomSerre);
 ## SUMMARY
 
 **Overall Code Quality:** 6.5/10
+
 - Good ORM usage and validation
 - Proper password hashing
 - But critical security gaps
 
 **Database Design:** 7/10
+
 - Well-structured relationships
 - Missing User → Serre/Zone relationships
 - Minor nullable inconsistency
 
 **Security:** 4/10
+
 - ❌ Major: AgriculteurController accessible to guests
 - ❌ Major: No data isolation by user
 - ✅ Good: Ticket/order ownership validated elsewhere
 
-**Recommendation:** 
+**Recommendation:**
 **DO NOT DEPLOY** to production without fixing the critical security issues, especially:
+
 1. Add authentication to AgriculteurController
 2. Add User relationships to Serre/Zone
 3. Filter all Agriculteur queries by current user

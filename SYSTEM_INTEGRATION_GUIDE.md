@@ -5,6 +5,7 @@
 The AgroSense platform integrates three main interfaces:
 
 ### 1. **Front Office** (Public)
+
 - URL: `http://localhost:8000/`
 - Features:
   - Event browsing & ticket purchase
@@ -14,6 +15,7 @@ The AgroSense platform integrates three main interfaces:
 - **Color Scheme:** Green gradient navbar with white background
 
 ### 2. **Agriculteur (Farmer) Interface** (User Only)
+
 - URL: `http://localhost:8000/agriculteur/dashboard`
 - Access: Requires user login
 - Features:
@@ -26,6 +28,7 @@ The AgroSense platform integrates three main interfaces:
 - **Target Users:** Farmers, agricultural operators
 
 ### 3. **Admin Interface** (Admin Only)
+
 - URL: `http://localhost:8000/admin/`
 - Access: Requires ROLE_ADMIN
 - Features:
@@ -44,6 +47,7 @@ The AgroSense platform integrates three main interfaces:
 ## URL Routes Reference
 
 ### Authentication
+
 ```
 GET  /login                 → Login page
 POST /login                 → Process login
@@ -53,6 +57,7 @@ POST /register              → Create new account
 ```
 
 ### Front Office - Public
+
 ```
 GET  /                      → Homepage
 GET  /evenements            → Events list
@@ -64,6 +69,7 @@ GET  /my-orders             → Order history
 ```
 
 ### Agriculteur - Farmer Dashboard
+
 ```
 GET  /agriculteur/dashboard               → Farmer dashboard
 GET  /agriculteur/serres                  → List my greenhouses
@@ -83,6 +89,7 @@ POST /agriculteur/zone/{id}/delete        → Delete zone
 ```
 
 ### Admin - Administration
+
 ```
 GET  /admin/                              → Admin dashboard
 GET  /admin/serres                        → Greenhouse supervision
@@ -110,32 +117,38 @@ GET  /admin/reports                       → Reports & analytics
 ### Key Entities
 
 **User**
+
 - id, email, password, roles
 - firstName, lastName, phone
 - createdAt, isActive
 - Relationships: tickets, orders, organized_events
 
 **Serre (Greenhouse)**
+
 - id, name, location, status
 - dateMiseEnService
 - Relationships: zones, activity_logs
 
 **Zone**
+
 - id, name, serre_id (FK)
 - status
 - Relationships: serre
 
 **Evenement (Event)**
+
 - id, titre, description, typeEvenement
 - dateDebut, dateFin, capaciteMax
 - Relationships: tickets, organisateur
 
 **Ticket**
+
 - id, eventId, userId
 - prixPaye, dateAchat, isConfirmed
 - Relationships: user, event
 
 **Commande (Order)**
+
 - id, userId, dateCommande, total
 - Relationships: user, order_items
 
@@ -144,6 +157,7 @@ GET  /admin/reports                       → Reports & analytics
 ## Color Scheme
 
 ### Theme Colors
+
 ```
 Primary Green:      #2c6e49  (Main elements, navbar)
 Secondary Green:    #52b788  (Hover effects, accents)
@@ -154,6 +168,7 @@ Dark Background:    #1a1a1a  (Footer)
 ```
 
 ### Bootstrap Color Classes
+
 - `.btn-primary` → Primary green
 - `.btn-success` → Secondary green
 - `.badge.bg-primary` → Green badge
@@ -164,36 +179,38 @@ Dark Background:    #1a1a1a  (Footer)
 ## Common Navigation Elements
 
 ### Front Office Navbar
+
 ```
 [Logo] AgriCulture
   Accueil | Événements | Panier
-  
+
   [Admin Dropdown - if admin]
     Gestion Boutique
     - Produits
     - Commandes
-    
+
     Gestion Événements
     - Événements
     - Tickets
-    
+
     Système
     - Utilisateurs
     - Rapports
     - Tableau de Bord
-  
+
   [User Dropdown - if logged in]
     Mon Profil
     Mes Commandes
     Mes Tickets
     --------
     Déconnexion
-  
+
   [Public links - if not logged in]
     Connexion | Inscription
 ```
 
 ### Admin Sidebar
+
 - Dashboard
 - Greenhouses (Supervision)
 - Zones (Supervision)
@@ -203,6 +220,7 @@ Dark Background:    #1a1a1a  (Footer)
 - Logout
 
 ### Agriculteur Sidebar
+
 - Dashboard
 - My Greenhouses (List, Add, Edit, Delete)
 - My Zones (List, Add, Edit, Delete)
@@ -215,6 +233,7 @@ Dark Background:    #1a1a1a  (Footer)
 ## Key Features by Interface
 
 ### For Farmers (Agriculteur)
+
 ✓ Create and manage multiple greenhouses
 ✓ Organize zones within each greenhouse
 ✓ Track farm operations
@@ -223,6 +242,7 @@ Dark Background:    #1a1a1a  (Footer)
 ✓ Access to public events and marketplace
 
 ### For Admins
+
 ✓ System-wide dashboard with KPIs
 ✓ Greenhouse and zone supervision
 ✓ Monitor all farm operations
@@ -233,6 +253,7 @@ Dark Background:    #1a1a1a  (Footer)
 ✓ Generate reports & analytics
 
 ### For Regular Users
+
 ✓ Browse and purchase event tickets
 ✓ Shop for agricultural products
 ✓ Manage orders & delivery
@@ -245,6 +266,7 @@ Dark Background:    #1a1a1a  (Footer)
 ## Responsive Design
 
 All interfaces are responsive and work on:
+
 - ✓ Desktop (1200px+)
 - ✓ Tablet (768px - 1199px)
 - ✓ Mobile (< 768px)
@@ -256,6 +278,7 @@ Bootstrap 5 grid system is used throughout for responsive layouts.
 ## API Integration
 
 ### Weather Service (Configured)
+
 - Configuration: `app.Service.WeatherService`
 - API Key: `WEATHER_API_KEY` environment variable
 - Purpose: Weather data for agricultural insights
@@ -266,21 +289,25 @@ Bootstrap 5 grid system is used throughout for responsive layouts.
 ## Troubleshooting
 
 ### Routes Not Found
+
 1. Clear cache: `php bin/console cache:clear`
 2. Check routes: `php bin/console debug:router`
 3. Verify user roles for admin access
 
 ### CSS/Styling Issues
+
 1. Clear browser cache (Ctrl+Shift+Delete)
 2. Verify Bootstrap CDN is loading
 3. Check template extends correctly
 
 ### Database Issues
+
 1. Run migrations: `php bin/console doctrine:migrations:migrate`
 2. Check `.env` DATABASE_URL
 3. Verify MySQL/MariaDB connection
 
 ### Authentication Issues
+
 1. Check user role: `ROLE_USER` or `ROLE_ADMIN`
 2. Verify session is active
 3. Check security.yaml configuration
@@ -358,6 +385,7 @@ composer dump-autoload
 ## Support & Documentation
 
 For detailed information:
+
 - See `MERGE_RESOLUTION_SUMMARY.md` for merge details
 - Check `config/routes*.yaml` for route configuration
 - Review controller files for specific endpoint logic

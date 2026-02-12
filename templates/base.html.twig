@@ -202,6 +202,34 @@
                             <i class="bi bi-calendar-event me-1"></i>Événements
                         </a>
                     </li>
+
+                    <!-- Serres & Zones Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="serresDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-building me-1"></i>Fermes
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="serresDropdown">
+                            <li><a class="dropdown-item" href="{{ path('app_front_index') }}#serres">
+                                <i class="bi bi-house-fill me-2"></i>Toutes les Serres
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_front_index') }}#zones">
+                                <i class="bi bi-geo-alt me-2"></i>Zones de Culture
+                            </a></li>
+                            {% if app.user and app.user.hasRole('ROLE_USER') %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ path('app_agriculteur_dashboard') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i>Mon Tableau de Bord
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_agriculteur_serres') }}">
+                                    <i class="bi bi-house-fill me-2"></i>Mes Serres
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_agriculteur_zones') }}">
+                                    <i class="bi bi-geo-alt me-2"></i>Mes Zones
+                                </a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_cart') }}">
                             <i class="bi bi-cart3 me-1"></i>Panier
@@ -231,17 +259,16 @@
                                 <li><a class="dropdown-item" href="{{ path('evenement_index') }}">
                                     <i class="bi bi-calendar me-2"></i>Événements
                                 </a></li>
-                                <li><a class="dropdown-item" href="{{ path('admin_tickets') }}">
-                                    <i class="bi bi-ticket-perforated me-2"></i>Tickets
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header"><i class="bi bi-building"></i> Gestion Fermes</h6></li>
+                                <li><a class="dropdown-item" href="{{ path('app_serre_index') }}">
+                                    <i class="bi bi-house-fill me-2"></i>Serres
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_zone_index') }}">
+                                    <i class="bi bi-geo-alt me-2"></i>Zones
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header"><i class="bi bi-gear"></i> Système</h6></li>
-                                <li><a class="dropdown-item" href="{{ path('admin_users') }}">
-                                    <i class="bi bi-people me-2"></i>Utilisateurs
-                                </a></li>
-                                <li><a class="dropdown-item" href="{{ path('admin_reports') }}">
-                                    <i class="bi bi-graph-up me-2"></i>Rapports
-                                </a></li>
                                 <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">
                                     <i class="bi bi-speedometer2 me-2"></i>Tableau de Bord
                                 </a></li>
@@ -259,6 +286,11 @@
                                 <li><a class="dropdown-item" href="{{ path('user_profile') }}">
                                     <i class="bi bi-person me-2"></i>Mon Profil
                                 </a></li>
+                                {% if app.user.hasRole('ROLE_USER') %}
+                                    <li><a class="dropdown-item" href="{{ path('app_agriculteur_dashboard') }}">
+                                        <i class="bi bi-speedometer2 me-2"></i>Tableau de Bord
+                                    </a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{{ path('user_orders') }}">
                                     <i class="bi bi-bag-check me-2"></i>Mes Commandes
                                 </a></li>

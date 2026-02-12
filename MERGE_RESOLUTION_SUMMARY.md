@@ -12,6 +12,7 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
 ## Conflicts Resolved
 
 ### 1. **PHP Entity & Repository Files**
+
 - ✅ **File:** `src/Entity/User.php`
   - **Resolution:** Kept HEAD version (comprehensive with all getter/setter methods)
   - **Status:** Fully functional with role-based access control
@@ -25,12 +26,14 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
 ### 2. **Configuration Files**
 
 #### Services Configuration
+
 - ✅ **File:** `config/services.yaml`
   - **Merged:** Combined service definitions
   - **Addition:** WeatherService integration with API key support
   - **Parameters:** Added weather_api_key environment variable
 
 #### Composer Configuration
+
 - ✅ **File:** `composer.json`
   - **Merged:** Combined all dependencies
   - **Added:** doctrine/annotations ^2.0
@@ -38,6 +41,7 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
   - **Updated:** symfony/maker-bundle to ^1.65
 
 #### Dependency Locks
+
 - ✅ **File:** `composer.lock` & `symfony.lock`
   - **Regenerated:** Using `composer update`
   - **Status:** All dependencies resolved
@@ -47,6 +51,7 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
 ### 3. **Template Files & Styling**
 
 #### Main Front Office Template
+
 - ✅ **File:** `templates/base.html.twig`
   - **Features:**
     - Unified navbar with green gradient (primary: #2c6e49, secondary: #52b788)
@@ -57,6 +62,7 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
     - Bootstrap 5.3.0 & Bootstrap Icons integration
 
 #### Admin Interface Template
+
 - ✅ **File:** `templates/admin/base_admin.html.twig`
   - **Features:**
     - Sidebar navigation with green color scheme
@@ -65,6 +71,7 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
     - Zone management interface
 
 #### Agriculteur (Farmer) Interface Template
+
 - ✅ **File:** `templates/agriculteur/base.html.twig`
   - **Features:**
     - Sidebar navigation matching admin design
@@ -73,6 +80,7 @@ Successfully resolved all merge conflicts between the Gestion Serres et Zones sy
     - Zone management for farming operations
 
 #### Admin Dashboard
+
 - ✅ **File:** `templates/admin/dashboard.html.twig`
   - **Resolution:** Adopted admin/base_admin.html.twig structure
   - **Features:** Statistics cards, popular events, recent tickets
@@ -130,11 +138,11 @@ agriculteur/base.html.twig (Farmer Interface)
 ## Key Features Integrated
 
 ### Gestion Serres et Zones (Roua)
+
 - ✅ **Serre (Greenhouse) Management**
   - CRUD operations for multiple greenhouses
   - Status tracking (active/inactive)
   - Geographic/organizational zones
-  
 - ✅ **Zone Management**
   - Zone organization within serres
   - Zone supervision dashboard
@@ -151,6 +159,7 @@ agriculteur/base.html.twig (Farmer Interface)
   - Integration points in dashboard
 
 ### Existing Event Management System
+
 - ✅ **Event CRUD Operations**
 - ✅ **Ticket Management**
 - ✅ **Order Processing**
@@ -161,6 +170,7 @@ agriculteur/base.html.twig (Farmer Interface)
 ## Consistent Styling
 
 ### Color Palette (Green Theme)
+
 ```css
 --primary-green: #2c6e49        /* Main navbar and accents *)
 --secondary-green: #52b788      /* Hover states *)
@@ -171,6 +181,7 @@ agriculteur/base.html.twig (Farmer Interface)
 ```
 
 ### Consistent Elements
+
 - ✅ Navbar styling across front office
 - ✅ Card hover animations
 - ✅ Bootstrap 5 form components
@@ -185,6 +196,7 @@ agriculteur/base.html.twig (Farmer Interface)
 All critical routes verified as functional:
 
 ### Frontend Routes
+
 - ✅ `app_front_index` - Main homepage
 - ✅ `app_login`, `app_register`, `app_logout` - Authentication
 - ✅ `evenement_index/show/new/edit/delete` - Events
@@ -193,6 +205,7 @@ All critical routes verified as functional:
 - ✅ `app_cart_*` - Shopping cart
 
 ### Agriculteur Routes
+
 - ✅ `app_agriculteur_dashboard` - Farmer dashboard
 - ✅ `app_agriculteur_serres` - Greenhouse list
 - ✅ `app_agriculteur_serre_*` - Serre CRUD
@@ -200,11 +213,13 @@ All critical routes verified as functional:
 - ✅ `app_agriculteur_zone_*` - Zone CRUD
 
 ### Admin Routes
+
 - ✅ `admin_dashboard` - Admin panel
 - ✅ `admin_users`, `admin_tickets`, `admin_reports` - Admin functions
 - ✅ `app_admin_dashboard` - Alternative admin entry
 
 ### User Routes
+
 - ✅ `user_profile` - User profile
 - ✅ `user_orders`, `user_order_details` - Order history
 
@@ -213,6 +228,7 @@ All critical routes verified as functional:
 ## Controllers Present
 
 ### Front Office
+
 - `FrontController` - Homepage & main pages
 - `RegistrationController` - User registration
 - `SecurityController` - Authentication
@@ -223,6 +239,7 @@ All critical routes verified as functional:
 - `CommandeController` - Orders
 
 ### Gestion Serres et Zones (New)
+
 - `Front\AgriculteurController` - Farmer interface
 - `Admin\AdminSerreController` - Greenhouse management
 - `Admin\AdminZoneController` - Zone management
@@ -230,6 +247,7 @@ All critical routes verified as functional:
 - `Admin\AdminSettingsController` - System settings
 
 ### Supporting Services
+
 - `WeatherService` - Weather information (configured)
 - Repository classes for all entities
 
@@ -254,20 +272,24 @@ Integrated migrations from both branches:
 ## New Entities & Relationships
 
 ### Serre (Greenhouse)
+
 - ID, name, location, status
 - Date mise en service (service date)
 - Relationships with zones and activities
 
 ### Zone
+
 - ID, name, serre_id (foreign key)
 - Status and organization
 - Associated with greenhouse management
 
 ### ActivityLog
+
 - Tracks system activities
 - Admin oversight capabilities
 
 ### Setting
+
 - Configuration management
 - System-wide settings storage
 
@@ -287,11 +309,13 @@ Integrated migrations from both branches:
 ## Deployment Recommendations
 
 ### Before Running
+
 1. Run migrations: `php bin/console doctrine:migrations:migrate`
 2. Clear cache: `php bin/console cache:clear`
 3. Create database if needed: `php bin/console doctrine:database:create`
 
 ### Environment Setup
+
 ```bash
 # Ensure .env contains:
 APP_ENV=dev
@@ -300,6 +324,7 @@ WEATHER_API_KEY="your_api_key_here"
 ```
 
 ### Git Status
+
 - ✅ Merge committed successfully
 - ✅ Branch: `gestion_des_evenements_Ben_Ghalia_Youssef`
 - ✅ 3 commits ahead of origin
@@ -309,26 +334,28 @@ WEATHER_API_KEY="your_api_key_here"
 
 ## Summary Statistics
 
-| Category | Count | Status |
-|----------|-------|--------|
-| Merge Conflicts Resolved | 14 | ✅ Complete |
-| Controllers | 15+ | ✅ Functional |
-| Routes | 40+ | ✅ Verified |
-| Templates | 50+ | ✅ Integrated |
-| Entities | 15+ | ✅ Related |
-| Migrations | 7 | ✅ Pending Run |
-| Configuration Files | Modified/Merged | ✅ Updated |
+| Category                 | Count           | Status         |
+| ------------------------ | --------------- | -------------- |
+| Merge Conflicts Resolved | 14              | ✅ Complete    |
+| Controllers              | 15+             | ✅ Functional  |
+| Routes                   | 40+             | ✅ Verified    |
+| Templates                | 50+             | ✅ Integrated  |
+| Entities                 | 15+             | ✅ Related     |
+| Migrations               | 7               | ✅ Pending Run |
+| Configuration Files      | Modified/Merged | ✅ Updated     |
 
 ---
 
 ## Next Steps
 
 1. **Test the Application**
+
    ```bash
    php bin/console serve
    ```
 
 2. **Run Database Migrations** (if not done)
+
    ```bash
    php bin/console doctrine:migrations:migrate
    ```
@@ -351,6 +378,7 @@ WEATHER_API_KEY="your_api_key_here"
 ✅ **Successfully merged the Gestion Serres et Zones system with the existing Events Management platform**
 
 The integration is complete with:
+
 - All conflicts resolved intelligently
 - System stability maintained
 - Consistent styling and routing throughout

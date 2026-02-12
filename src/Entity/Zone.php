@@ -40,8 +40,12 @@ class Zone
     private ?string $cultureAssociee = null;
 
     #[ORM\ManyToOne(inversedBy: 'zones')]
-    #[ORM\JoinColumn(name: 'serre_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'serre_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Serre $serre = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'zones')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
 
     
 
@@ -115,6 +119,17 @@ class Zone
     public function setSerre(?Serre $serre): static
     {
         $this->serre = $serre;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
 }

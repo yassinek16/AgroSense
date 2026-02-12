@@ -1,0 +1,217 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ serre.nomSerre }} - AgriCulture{% endblock %}
+
+{% block body %}
+<!-- Breadcrumb -->
+<div class="container mt-4 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_front_index') }}">Accueil</a></li>
+            <li class="breadcrumb-item active">{{ serre.nomSerre }}</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Serre Detail Section -->
+<section class="py-5">
+    <div class="container">
+            <div class="col-lg-8">
+                <div class="card shadow-lg">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start mb-4">
+                            <div class="bg-success rounded-circle p-4" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="bi bi-building text-white" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <div class="ms-4 flex-grow-1">
+                                <h1 class="display-5 fw-bold mb-2">{{ serre.nomSerre }}</h1>
+                                <p class="lead text-muted mb-3">
+                                    <i class="bi bi-geo-alt me-2"></i>{{ serre.localisation }}
+                                </p>
+                                <div>
+                                    <span class="badge bg-success me-2" style="font-size: 1rem;">
+                                        <i class="bi bi-check-circle me-1"></i>{{ serre.etatSerre|capitalize }}
+                                    </span>
+                                    <span class="badge bg-secondary" style="font-size: 1rem;">
+                                        <i class="bi bi-calendar-event me-1"></i>Depuis {{ serre.dateMiseEnService|date('d/m/Y') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Serre Information -->
+                        <hr class="my-4">
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Caractéristiques</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <strong>📏 Surface totale:</strong>
+                                        <span class="float-end">{{ serre.surface }} m²</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>🌱 Zones actives:</strong>
+                                        <span class="float-end badge bg-info">{{ zones|length }}</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>📊 État:</strong>
+                                        <span class="float-end">
+                                            {% if serre.etatSerre == 'actif' %}
+                                                <span class="badge bg-success">Opérationnelle</span>
+                                            {% elseif serre.etatSerre == 'maintenance' %}
+                                                <span class="badge bg-warning">En maintenance</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ serre.etatSerre|capitalize }}</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Utilisation</h5>
+                                {% set totalZoneSuperficie = 0 %}
+                                {% for zone in zones %}
+                                    {% set totalZoneSuperficie = totalZoneSuperficie + zone.superficie %}
+                                {% endfor %}
+                                {% set utilisationPourcentage = (totalZoneSuperficie / serre.surface * 100)|round(1) %}
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <strong>Surface utilisée:</strong>
+                                        <span class="float-end">{{ totalZoneSuperficie }} / {{ serre.surface }} m²</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Taux d'utilisation:</strong>
+                                        <span class="float-end">{{ utilisationPourcentage }}%</span>
+                                    </li>
+                                    <li class="mb-3">
+                                        <strong>Surface disponible:</strong>
+                                        <span class="float-end">{{ (serre.surface - totalZoneSuperficie)|round(2) }} m²</span>
+                                    </li>
+                                </ul>
+                                
+                                <!-- Progress Bar -->
+                                <div class="progress mt-2" style="height: 25px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ utilisationPourcentage }}%;" 
+                                         aria-valuenow="{{ utilisationPourcentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ utilisationPourcentage }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Informations
+                        </h5>
+                        <div class="small">
+                            <p class="mb-2">
+                                <strong>Propriétaire:</strong><br>
+                                {{ serre.user.firstName }} {{ serre.user.lastName }}
+                            </p>
+                            <hr>
+                            <p class="mb-2">
+                                <strong>Email de contact:</strong><br>
+                                <a href="mailto:{{ serre.user.email }}">{{ serre.user.email }}</a>
+                            </p>
+                            <hr>
+                            <p>
+                                <strong>Dernière mise à jour:</strong><br>
+                                {{ 'now'|date('d/m/Y H:i') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zones Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="mb-4 fw-bold">
+                    <i class="bi bi-geo-alt me-2"></i>Zones de Culture ({{ zones|length }})
+                </h3>
+
+                {% if zones|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Type</th>
+                                    <th>Culture</th>
+                                    <th>Superficie</th>
+                                    <th>État</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for zone in zones %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ zone.nomZone }}</strong>
+                                        </td>
+                                        <td>
+                                            {{ zone.typeZone }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ zone.cultureAssociee }}</span>
+                                        </td>
+                                        <td>
+                                            {{ zone.superficie }} m²
+                                        </td>
+                                        <td>
+                                            {% if zone.etatZone == 'active' %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ zone.etatZone|capitalize }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_front_zone_detail', {'id': zone.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-arrow-right"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Aucune zone de culture active dans cette serre pour le moment.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <a href="{{ path('app_front_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hover-shadow {
+        transition: box-shadow 0.3s ease;
+    }
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock %}

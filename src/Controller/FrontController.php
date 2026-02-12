@@ -3,7 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Produit;
+use App\Entity\Serre;
+use App\Entity\Zone;
 use App\Repository\ProduitRepository;
+use App\Repository\SerreRepository;
+use App\Repository\ZoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class FrontController extends AbstractController
 {
     #[Route('/', name: 'app_front_index', methods: ['GET', 'POST'])]
-    public function index(ProduitRepository $produitRepository, Request $request): Response
+    public function index(ProduitRepository $produitRepository, SerreRepository $serreRepository, ZoneRepository $zoneRepository, Request $request): Response
     {
         $searchTerm = $request->query->get('search', '');
         
@@ -24,9 +28,17 @@ class FrontController extends AbstractController
             $produits = $produitRepository->findAll();
         }
         
+        // Get all active serres for public display
+        $serres = $serreRepository->findBy(['etatSerre' => 'actif']);
+        
+        // Get all active zones for public display
+        $zones = $zoneRepository->findBy(['etatZone' => 'active']);
+        
         return $this->render('front/index.html.twig', [
             'produits' => $produits,
             'searchTerm' => $searchTerm,
+            'serres' => $serres,
+            'zones' => $zones,
         ]);
     }
 
@@ -179,5 +191,47 @@ public function addToCart(
         $this->addFlash('success', 'Commande passée avec succès! Référence: ' . $commande->getReference());
 
         return $this->redirectToRoute('app_front_index');
+    }
+
+    #[Route('/serres/{id}', name: 'app_front_serre_detail', methods: ['GET'])]
+    public function serreDetail(int $id, SerreRepository $serreRepository): Response
+    {
+        $serre = $serreRepository->find($id);
+        
+        if (!$serre) {
+            throw $this->createNotFoundException('Cette serre n\'existe pas.');
+        }
+        
+        // Only show active serres to public
+        if ($serre->getEtatSerre() !== 'actif') {
+            throw $this->createNotFoundException('Cette serre n\'est pas disponible.');
+        }
+
+        // Get zones in this serre that are active
+        $zones = $serre->getZones()->filter(fn($z) => $z->getEtatZone() === 'active');
+
+        return $this->render('front/serre_detail.html.twig', [
+            'serre' => $serre,
+            'zones' => $zones,
+        ]);
+    }
+
+    #[Route('/zones/{id}', name: 'app_front_zone_detail', methods: ['GET'])]
+    public function zoneDetail(int $id, ZoneRepository $zoneRepository): Response
+    {
+        $zone = $zoneRepository->find($id);
+        
+        if (!$zone) {
+            throw $this->createNotFoundException('Cette zone n\'existe pas.');
+        }
+        
+        // Only show active zones to public
+        if ($zone->getEtatZone() !== 'active') {
+            throw $this->createNotFoundException('Cette zone n\'est pas disponible.');
+        }
+
+        return $this->render('front/zone_detail.html.twig', [
+            'zone' => $zone,
+        ]);
     }
 }

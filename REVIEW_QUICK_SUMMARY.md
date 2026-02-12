@@ -3,26 +3,31 @@
 ## 🔴 CRITICAL ISSUES FOUND (5)
 
 ### 1. AgriculteurController NOT PROTECTED
+
 - **Problem:** No `#[IsGranted('ROLE_USER')]` decorator
 - **Risk:** Unauthenticated users can access farmer dashboard
 - **Fix:** Add security decorator to class
 
-### 2. NO USER FILTERING IN AGRICULTEUR CONTROLLER  
+### 2. NO USER FILTERING IN AGRICULTEUR CONTROLLER
+
 - **Problem:** `findAll()` returns ALL serres/zones, not user's data
 - **Risk:** Farmers see other farmers' greenhouses
 - **Fix:** Filter by `$this->getUser()` in all methods
 
 ### 3. NO USER RELATIONSHIP ON SERRE ENTITY
+
 - **Problem:** Serre has no `user` field
 - **Risk:** Can't track which farmer owns which greenhouse
 - **Fix:** Add `ManyToOne` relationship to User
 
 ### 4. NO USER RELATIONSHIP ON ZONE ENTITY
-- **Problem:** Zone has no `user` field  
+
+- **Problem:** Zone has no `user` field
 - **Risk:** Can't determine zone ownership
 - **Fix:** Add `ManyToOne` relationship to User
 
 ### 5. ZONE.SERRE IS NULLABLE (SHOULD NOT BE)
+
 - **Problem:** Zones can exist without a Serre
 - **Risk:** Orphaned data in database
 - **Fix:** Make `Zone.serre` non-nullable in ORM mapping
@@ -41,7 +46,7 @@
 
 - Ticket system with ownership validation
 - User authentication and password hashing
-- Order history with user filtering  
+- Order history with user filtering
 - Event management with organizer tracking
 - Admin dashboard statistics
 - Form validation across all types
@@ -84,14 +89,14 @@ private ?Serre $serre = null;
 
 ## SECURITY CONCERNS
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Agriculteur Authentication | ❌ MISSING | Add @IsGranted |
-| Data Isolation | ❌ BROKEN | No user filtering |
-| Ticket Ownership | ✅ GOOD | Validates user |
-| Order Ownership | ✅ GOOD | Validates user |
-| Admin Routes | ✅ GOOD | Protected |
-| Password Hashing | ✅ GOOD | Uses Symfony hasher |
+| Item                       | Status     | Notes               |
+| -------------------------- | ---------- | ------------------- |
+| Agriculteur Authentication | ❌ MISSING | Add @IsGranted      |
+| Data Isolation             | ❌ BROKEN  | No user filtering   |
+| Ticket Ownership           | ✅ GOOD    | Validates user      |
+| Order Ownership            | ✅ GOOD    | Validates user      |
+| Admin Routes               | ✅ GOOD    | Protected           |
+| Password Hashing           | ✅ GOOD    | Uses Symfony hasher |
 
 ---
 
@@ -117,7 +122,7 @@ Zone → Serre (should be non-nullable)
 
 1. **src/Controller/Front/AgriculteurController.php** - Add security + filtering
 2. **src/Entity/Serre.php** - Add User relationship
-3. **src/Entity/Zone.php** - Add User relationship  
+3. **src/Entity/Zone.php** - Add User relationship
 4. **src/Entity/User.php** - Add inverse relationships
 5. **Database migrations** - Create after entity changes
 
@@ -126,6 +131,7 @@ Zone → Serre (should be non-nullable)
 ## REVIEW DOCUMENTATION
 
 See **CODE_REVIEW_FINDINGS.md** for:
+
 - Detailed issue descriptions
 - Code examples
 - Comprehensive checklist
