@@ -3,43 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Smart Greenhouse Events{% endblock %}</title>
+    <title>{% block title %}AgriCulture - Plateforme Agricole{% endblock %}</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
         :root {
-            --primary-green: #2d6a4f;
-            --light-green: #40916c;
-            --accent-green: #52b788;
+            --primary-green: #2c6e49;
+            --secondary-green: #52b788;
+            --light-green: #b7e4c7;
+            --earth-brown: #8b5a3c;
+            --wheat-gold: #f4a261;
+            --dark-bg: #1a1a1a;
         }
         
         body {
             background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .navbar {
-            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .navbar-brand {
-            font-weight: bold;
-            font-size: 1.3rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar-light .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-light .navbar-nav .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+        
+        .navbar-light .navbar-nav .dropdown-menu {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .navbar-light .navbar-nav .dropdown-menu .dropdown-item {
+            color: var(--primary-green);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-light .navbar-nav .dropdown-menu .dropdown-item:hover {
+            background-color: #f0f0f0;
+            color: var(--secondary-green);
+            padding-left: 1.5rem;
+        }
+        
+        .dropdown-header {
+            color: var(--primary-green) !important;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 1rem !important;
+            margin-top: 0.25rem;
+        }
+        
+        .dropdown-header i {
+            margin-right: 0.5rem;
+            opacity: 0.8;
         }
         
         .btn-primary {
             background-color: var(--primary-green);
             border-color: var(--primary-green);
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         
         .btn-primary:hover {
-            background-color: var(--light-green);
-            border-color: var(--light-green);
+            background-color: var(--secondary-green);
+            border-color: var(--secondary-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 110, 73, 0.3);
         }
         
         .text-success {
@@ -48,16 +101,69 @@
         
         .card {
             border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-radius: 0.75rem;
         }
         
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green)) !important;
+            color: white !important;
+            border: none;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
         }
         
         .badge {
             padding: 0.5em 0.8em;
+            font-weight: 600;
+        }
+        
+        .badge.bg-primary {
+            background-color: var(--primary-green) !important;
+        }
+        
+        .badge.bg-success {
+            background-color: var(--secondary-green) !important;
+        }
+        
+        footer {
+            background: linear-gradient(180deg, var(--dark-bg) 0%, #2a2a2a 100%);
+            color: white;
+            margin-top: auto;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        }
+        
+        footer h5 {
+            color: var(--light-green);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        footer p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+        
+        footer a {
+            color: var(--light-green);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        footer a:hover {
+            color: var(--wheat-gold);
+            text-decoration: underline;
+        }
+        
+        .alert {
+            border: none;
+            border-left: 4px solid var(--primary-green);
+            border-radius: 0.5rem;
         }
         
         .event-card-image {
@@ -65,80 +171,116 @@
             object-fit: cover;
             background: linear-gradient(135deg, #d8f3dc, #95d5b2);
         }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--secondary-green) 100%);
+            padding: 4rem 0;
+        }
     </style>
     
     {% block stylesheets %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column" style="min-height: 100vh;">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ path('evenement_index') }}">
-                <i class="bi bi-flower1"></i> Smart Greenhouse
+            <a class="navbar-brand" href="{{ path('app_front_index') }}">
+                <i class="bi bi-flower1 me-2"></i>AgriCulture
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('evenement_index') }}">
-                            <i class="bi bi-calendar-event"></i> Événements
+                        <a class="nav-link" href="{{ path('app_front_index') }}">
+                            <i class="bi bi-house me-1"></i>Accueil
                         </a>
                     </li>
-                    {% if is_granted('ROLE_USER') %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('ticket_my_tickets') }}">
-                                <i class="bi bi-ticket-perforated"></i> Mes Billets
-                            </a>
-                        </li>
-                    {% endif %}
-                    {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('evenement_index') }}">
+                            <i class="bi bi-calendar-event me-1"></i>Événements
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_cart') }}">
+                            <i class="bi bi-cart3 me-1"></i>Panier
+                            {% set cart_count = app.session.get('cart')|length %}
+                            {% if cart_count > 0 %}
+                                <span class="badge bg-primary rounded-pill ms-1">{{ cart_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+
+                    {% if app.user and app.user.hasRole('ROLE_ADMIN') %}
+                        <!-- Admin Dropdown Menu (only visible to admins) -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-speedometer2"></i> Administration
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: var(--primary-green); font-weight: 600;">
+                                <i class="bi bi-gear me-1"></i>Administration
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">
-                                    <i class="bi bi-graph-up"></i> Dashboard
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                                <li><h6 class="dropdown-header"><i class="bi bi-shop"></i> Gestion Boutique</h6></li>
+                                <li><a class="dropdown-item" href="{{ path('app_produit_index') }}">
+                                    <i class="bi bi-box-seam me-2"></i>Produits
                                 </a></li>
-                                <li><a class="dropdown-item" href="{{ path('evenement_new') }}">
-                                    <i class="bi bi-plus-circle"></i> Nouvel Événement
+                                <li><a class="dropdown-item" href="{{ path('app_commande_index') }}">
+                                    <i class="bi bi-receipt me-2"></i>Commandes
                                 </a></li>
-                                <li><a class="dropdown-item" href="{{ path('admin_users') }}">
-                                    <i class="bi bi-people"></i> Utilisateurs
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header"><i class="bi bi-calendar-event"></i> Gestion Événements</h6></li>
+                                <li><a class="dropdown-item" href="{{ path('evenement_index') }}">
+                                    <i class="bi bi-calendar me-2"></i>Événements
                                 </a></li>
                                 <li><a class="dropdown-item" href="{{ path('admin_tickets') }}">
-                                    <i class="bi bi-ticket"></i> Tous les Billets
+                                    <i class="bi bi-ticket-perforated me-2"></i>Tickets
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header"><i class="bi bi-gear"></i> Système</h6></li>
+                                <li><a class="dropdown-item" href="{{ path('admin_users') }}">
+                                    <i class="bi bi-people me-2"></i>Utilisateurs
                                 </a></li>
                                 <li><a class="dropdown-item" href="{{ path('admin_reports') }}">
-                                    <i class="bi bi-file-bar-graph"></i> Rapports
+                                    <i class="bi bi-graph-up me-2"></i>Rapports
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('admin_dashboard') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i>Tableau de Bord
                                 </a></li>
                             </ul>
                         </li>
                     {% endif %}
-                </ul>
-                <ul class="navbar-nav">
+
                     {% if app.user %}
+                        <!-- User Dropdown Menu -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> {{ app.user.fullName ?? app.user.email }}
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i>{{ app.user.firstName }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{{ path('user_profile') }}">
+                                    <i class="bi bi-person me-2"></i>Mon Profil
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('user_orders') }}">
+                                    <i class="bi bi-bag-check me-2"></i>Mes Commandes
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ path('ticket_my_tickets') }}">
+                                    <i class="bi bi-ticket-perforated me-2"></i>Mes Tickets
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ path('app_logout') }}">
-                                    <i class="bi bi-box-arrow-right"></i> Déconnexion
+                                    <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
+                        <!-- Login/Register Links -->
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_login') }}">
-                                <i class="bi bi-box-arrow-in-right"></i> Connexion
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_register') }}">
-                                <i class="bi bi-person-plus"></i> Inscription
+                                <i class="bi bi-person-plus me-1"></i>Inscription
                             </a>
                         </li>
                     {% endif %}
@@ -148,11 +290,11 @@
     </nav>
 
     <!-- Flash Messages -->
-    <div class="container">
-        {% for label, messages in app.flashes %}
+    <div class="container mt-3">
+        {% for type, messages in app.flashes %}
             {% for message in messages %}
-                <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+                <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>{{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
@@ -160,20 +302,46 @@
     </div>
 
     <!-- Main Content -->
-    {% block body %}{% endblock %}
+    <main class="flex-grow-1">
+        {% block body %}{% endblock %}
+    </main>
 
     <!-- Footer -->
-    <footer class="mt-5 py-4 bg-light">
-        <div class="container text-center text-muted">
-            <p class="mb-0">
-                <i class="bi bi-flower1"></i> Smart Greenhouse Event Management System &copy; {{ 'now'|date('Y') }}
-            </p>
+    <footer class="py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="bi bi-flower1 me-2"></i>AgriCulture</h5>
+                    <p>Votre plateforme complète pour l'agriculture, les événements et les produits agricoles de qualité.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Liens Rapides</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ path('app_front_index') }}">Accueil</a></li>
+                        <li><a href="{{ path('evenement_index') }}">Événements</a></li>
+                        <li><a href="{{ path('app_cart') }}">Panier</a></li>
+                        {% if app.user %}
+                            <li><a href="{{ path('user_profile') }}">Mon Profil</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Informations</h5>
+                    <p class="text-muted mb-1">Email: contact@agriculture.com</p>
+                    <p class="text-muted mb-1">Téléphone: +216 XX XXX XXX</p>
+                    <p class="text-muted">© {{ "now"|date("Y") }} AgriCulture. Tous droits réservés.</p>
+                </div>
+            </div>
+            <hr class="bg-secondary" style="opacity: 0.2;">
+            <div class="text-center text-muted small">
+                <p>Plateforme Agricole Intégrée - Gestion d'Événements & Boutique en Ligne</p>
+            </div>
         </div>
     </footer>
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     {% block javascripts %}{% endblock %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
 </body>
 </html>
