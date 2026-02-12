@@ -1,210 +1,174 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Dashboard Admin - Smart Greenhouse{% endblock %}
+{% block title %}Tableau de Bord - Administration{% endblock %}
 
-{% block body %}
-<div class="container-fluid py-4">
-    <h1 class="mb-4 text-success">
-        <i class="bi bi-speedometer2"></i> Dashboard Administrateur
-    </h1>
-
-    <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100 bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Événements Total</h6>
-                            <h2 class="mb-0">{{ eventStats.total }}</h2>
-                        </div>
-                        <i class="bi bi-calendar-event" style="font-size: 3rem; opacity: 0.3;"></i>
-                    </div>
-                    <div class="mt-2 small">
-                        <i class="bi bi-arrow-up"></i> {{ eventStats.upcoming }} à venir
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100 bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Billets Vendus</h6>
-                            <h2 class="mb-0">{{ ticketStats.confirmed }}</h2>
-                        </div>
-                        <i class="bi bi-ticket-perforated" style="font-size: 3rem; opacity: 0.3;"></i>
-                    </div>
-                    <div class="mt-2 small">
-                        <i class="bi bi-hourglass-split"></i> {{ ticketStats.pending }} en attente
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100 bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Revenus Total</h6>
-                            <h2 class="mb-0">{{ totalRevenue|number_format(2) }} TND</h2>
-                        </div>
-                        <i class="bi bi-currency-dollar" style="font-size: 3rem; opacity: 0.3;"></i>
-                    </div>
-                    <div class="mt-2 small">
-                        <i class="bi bi-calendar-month"></i> {{ monthRevenue|number_format(2) }} TND ce mois
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="card border-0 shadow-sm h-100 bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase mb-1 opacity-75">Utilisateurs</h6>
-                            <h2 class="mb-0">{{ totalUsers }}</h2>
-                        </div>
-                        <i class="bi bi-people" style="font-size: 3rem; opacity: 0.3;"></i>
-                    </div>
-                    <div class="mt-2 small">
-                        <i class="bi bi-person-check"></i> Membres inscrits
-                    </div>
-                </div>
-            </div>
-        </div>
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>🌿 Tableau de Bord Administratif</h1>
+        <p>Supervision globale du système AgroSense</p>
     </div>
 
-    <div class="row">
-        <!-- Popular Events -->
-        <div class="col-lg-8 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-fire"></i> Événements Populaires
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if popularEvents is empty %}
-                        <p class="text-muted text-center py-4">Aucun événement populaire pour le moment</p>
-                    {% else %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Événement</th>
-                                        <th>Date</th>
-                                        <th class="text-center">Billets</th>
-                                        <th class="text-end">Revenus</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for event in popularEvents %}
-                                        <tr>
-                                            <td>
-                                                <strong>{{ event.titre }}</strong>
-                                                <br>
-                                                <small class="text-muted">{{ event.typeEvenement|capitalize }}</small>
-                                            </td>
-                                            <td>{{ event.dateDebut|date('d/m/Y') }}</td>
-                                            <td class="text-center">
-                                                <span class="badge bg-success">{{ event.ticketsSold }}</span>
-                                                {% if event.capaciteMax %}
-                                                    / {{ event.capaciteMax }}
-                                                {% endif %}
-                                            </td>
-                                            <td class="text-end">
-                                                <strong>{{ event.totalRevenue|number_format(2) }} TND</strong>
-                                            </td>
-                                            <td>
-                                                <a href="{{ path('evenement_statistics', {id: event.id}) }}" class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-graph-up"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% endif %}
-                </div>
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
+        {% endfor %}
+    {% endfor %}
 
-        <!-- Recent Tickets -->
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-clock-history"></i> Billets Récents
-                    </h5>
-                </div>
-                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                    {% if recentTickets is empty %}
-                        <p class="text-muted text-center py-4">Aucun billet récent</p>
-                    {% else %}
-                        {% for ticket in recentTickets %}
-                            <div class="d-flex align-items-start mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
-                                <div class="flex-grow-1">
-                                    <strong class="d-block">{{ ticket.user.fullName }}</strong>
-                                    <small class="text-muted d-block">{{ ticket.evenement.titre }}</small>
-                                    <small class="text-muted">
-                                        <i class="bi bi-clock"></i> {{ ticket.dateAchat|date('d/m H:i') }}
-                                    </small>
-                                </div>
-                                <span class="badge {% if ticket.isConfirmed %}bg-success{% else %}bg-warning{% endif %}">
-                                    {{ ticket.prixPaye }} TND
-                                </span>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="card-footer bg-white">
-                    <a href="{{ path('admin_tickets') }}" class="btn btn-sm btn-outline-primary w-100">
-                        Voir tous les billets
-                    </a>
-                </div>
-            </div>
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ stats.totalSerres }}</div>
+            <div class="label">🏠 Serres Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.activeSerres }}</div>
+            <div class="label">✅ Serres Actives</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ stats.totalZones }}</div>
+            <div class="label">📏 Zones Totales</div>
+        </div>
+      
+        <div class="stat-card">
+            <div class="number">{{ stats.totalSurface }} m²</div>
+            <div class="label">📐 Surface Totale</div>
         </div>
     </div>
 
     <!-- Quick Actions -->
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h5>📊 Actions de Supervision</h5>
+           
+        </div>
+        <div class="p-3">
+            <!-- Actions Principales -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <a href="{{ path('app_admin_serres') }}" class="btn btn-primary w-100">
+                        <i class="bi bi-eye"></i>
+                         Consulter les Serres
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ path('app_admin_zones') }}" class="btn btn-primary w-100">
+                        <i class="bi bi-eye"></i>
+                         Consulter les Zones
+                    </a>
+                </div>
+            </div>
+            
+      
+        </div>
+    </div>
+
+    <!-- System Overview -->
     <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">
-                        <i class="bi bi-lightning"></i> Actions Rapides
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ path('evenement_new') }}" class="btn btn-success w-100">
-                                <i class="bi bi-plus-circle"></i> Créer un événement
-                            </a>
+        <div class="col-md-8">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>📊 Vue d'Ensemble du Système</h5>
+                </div>
+                <div class="p-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6>🏠 Répartition des Serres</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar bg-success" style="width: {{ (stats.activeSerres / stats.totalSerres * 100)|round }}%">
+                                    Actives: {{ stats.activeSerres }}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ (stats.activeSerres / stats.totalSerres * 100)|round }}% des serres sont actives</small>
                         </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ path('evenement_index') }}" class="btn btn-primary w-100">
-                                <i class="bi bi-calendar-event"></i> Gérer les événements
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ path('admin_users') }}" class="btn btn-info w-100">
-                                <i class="bi bi-people"></i> Gérer les utilisateurs
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="{{ path('admin_reports') }}" class="btn btn-warning w-100">
-                                <i class="bi bi-file-bar-graph"></i> Voir les rapports
-                            </a>
+                        <div class="col-md-6">
+                            <h6>📏 Répartition des Zones</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar bg-info" style="width: {{ (stats.activeZones / stats.totalZones * 100)|round }}%">
+                                    Actives: {{ stats.activeZones }}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ (stats.activeZones / stats.totalZones * 100)|round }}% des zones sont actives</small>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>🔍 Incohérences Détectées</h5>
+                </div>
+                <div class="p-3">
+                    {% if incoherences|length > 0 %}
+                        {% for incoherence in incoherences %}
+                            <div class="incoherence-item mb-2">
+                                <small><strong>{{ incoherence.type|title }}</strong></small><br>
+                                <small>{{ incoherence.message }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                            <p>Aucune incohérence détectée</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="content-card mt-4">
+        <div class="card-header">
+            <h5>📋 Activité Récente</h5>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Entité</th>
+                        <th>Utilisateur</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recentActivity is defined and recentActivity|length > 0 %}
+                        {% for activity in recentActivity %}
+                            <tr>
+                                <td>{{ activity.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <span class="badge badge-{{ activity.type == 'CREATE' ? 'success' : activity.type == 'UPDATE' ? 'warning' : 'danger' }}">
+                                        {{ activity.type }}
+                                    </span>
+                                </td>
+                                <td>{{ activity.entityType }} #{{ activity.entityId }}</td>
+                                <td>{{ activity.user.email }}</td>
+                                <td>
+                                    {% if activity.success %}
+                                        <i class="bi bi-check-circle text-success"></i>
+                                    {% else %}
+                                        <i class="bi bi-x-circle text-danger"></i>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Aucune activité récente
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

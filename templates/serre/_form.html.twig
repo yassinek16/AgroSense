@@ -1,0 +1,9 @@
+{# templates/serre/_form.html.twig #}
+
+{{ form_start(form) }}
+    {{ form_row(form.nomSerre) }}
+    {{ form_row(form.localisation) }}
+    {{ form_row(form.surface) }}
+    {{ form_row(form.etatSerre) }}
+    <button type="submit" class="btn btn-success">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

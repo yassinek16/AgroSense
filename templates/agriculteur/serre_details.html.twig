@@ -1,0 +1,262 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}{{ serre.nomSerre }} - Détails{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1>🏠 {{ serre.nomSerre }}</h1>
+                <p class="mb-0">
+                    <i class="bi bi-geo-alt"></i>
+                    {{ serre.localisation }}
+                </p>
+            </div>
+            <div>
+                <a href="{{ path('app_agriculteur_serre_edit', {'id': serre.id}) }}" class="btn btn-primary me-2">
+                    <i class="bi bi-pencil"></i>
+                    Modifier
+                </a>
+                <a href="{{ path('app_agriculteur_zone_new') }}?serre={{ serre.id }}" class="btn btn-success">
+                    <i class="bi bi-plus-lg"></i>
+                    Ajouter une Zone
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Serre Information -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>📋 Informations de la Serre</h5>
+                </div>
+                <div class="p-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Nom de la serre</label>
+                                <h5>{{ serre.nomSerre }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Localisation</label>
+                                <h5><i class="bi bi-geo-alt"></i> {{ serre.localisation }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Surface totale</label>
+                                <h5><span class="badge bg-info">{{ serre.surface }} m²</span></h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Surface utilisée</label>
+                                <h5><span class="badge bg-success">{{ surfaceUtilisee }} m²</span></h5>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Surface restante</label>
+                                <h5><span class="badge bg-{{ surfaceRestante > 0 ? 'primary' : 'warning' }}">{{ surfaceRestante }} m²</span></h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">État actuel</label>
+                                <h5>
+                                    <span class="badge bg-{{ serre.etatSerre == 'actif' ? 'success' : serre.etatSerre == 'maintenance' ? 'warning' : 'secondary' }}">
+                                        {{ serre.etatSerre|title }}
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Date de mise en service</label>
+                                <h5>
+                                    {% if serre.dateMiseEnService %}
+                                        {{ serre.dateMiseEnService|date('d/m/Y') }}
+                                    {% else %}
+                                        <span class="text-muted">Non définie</span>
+                                    {% endif %}
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Surface Utilisation -->
+                    <div class="mt-4">
+                        <h6>📊 Utilisation de l'espace</h6>
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar bg-success" style="width: {{ (surfaceUtilisee / serre.surface * 100)|round }}%">
+                                {{ (surfaceUtilisee / serre.surface * 100)|round }}% utilisé
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            {% if surfaceRestante > 0 %}
+                                {{ surfaceRestante }} m² encore disponibles
+                            {% else %}
+                                ⚠️ Serre pleine ! Considérez l'optimisation
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-card">
+                <div class="card-header">
+                    <h5>🌾 Aide Décision</h5>
+                </div>
+                <div class="p-3">
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-lightbulb"></i> Optimisation</h6>
+                        <ul class="mb-0">
+                            {% if surfaceRestante > 0 %}
+                                <li>{{ surfaceRestante }}m² disponibles pour de nouvelles zones</li>
+                            {% endif %}
+                            {% if zones|length > 0 %}
+                                <li>{{ zones|length }} zone(s) configurée(s)</li>
+                            {% endif %}
+                            {% if serre.etatSerre == 'maintenance' %}
+                                <li class="text-warning">Serre actuellement en maintenance</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6>📊 Statistiques Rapides</h6>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h4 class="text-primary">{{ zones|length }}</h4>
+                                <small>Zones totales</small>
+                            </div>
+                            <div class="col-6">
+                                <h4 class="text-success">{{ zones|filter(z => z.etatZone == 'active')|length }}</h4>
+                                <small>Zones actives</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zones List -->
+    <div class="content-card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5>📏 Zones de cette Serre</h5>
+                <a href="{{ path('app_agriculteur_zone_new') }}?serre={{ serre.id }}" class="btn btn-success btn-sm">
+                    <i class="bi bi-plus-lg"></i>
+                    Ajouter une Zone
+                </a>
+            </div>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Superficie</th>
+                        <th>Culture</th>
+                        <th>État</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if zones|length > 0 %}
+                        {% for zone in zones %}
+                            <tr>
+                                <td>
+                                    <strong>{{ zone.nomZone }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ zone.typeZone }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ zone.superficie }} m²</span>
+                                </td>
+                                <td>
+                                    {% if zone.cultureAssociee %}
+                                        <span class="badge bg-success">{{ zone.cultureAssociee }}</span>
+                                    {% else %}
+                                        <span class="text-muted">Non définie</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ zone.etatZone == 'active' ? 'success' : 'secondary' }}">
+                                        {{ zone.etatZone|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('app_agriculteur_zone_edit', {'id': zone.id}) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Modifier">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDeleteZone({{ zone.id }}, '{{ zone.nomZone }}')"
+                                                title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-grid-3x3" style="font-size: 2rem; color: #ccc;"></i>
+                                <h5 class="mt-3">Aucune zone</h5>
+                                <p class="text-muted">
+                                    Cette serre n'a pas encore de zones configurées
+                                </p>
+                                <a href="{{ path('app_agriculteur_zone_new') }}?serre={{ serre.id }}" class="btn btn-success">
+                                    <i class="bi bi-plus-lg"></i>
+                                    Créer la première Zone
+                                </a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="mt-4 text-center">
+        <a href="{{ path('app_agriculteur_serres') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i>
+            Retour à la liste des serres
+        </a>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+function confirmDeleteZone(zoneId, zoneName) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la zone "${zoneName}" ? Cette action est irréversible.`)) {
+        window.location.href = `/agriculteur/zone/${zoneId}/delete`;
+    }
+}
+</script>
+{% endblock %}

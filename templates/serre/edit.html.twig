@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Serre{% endblock %}
+
+{% block body %}
+    <h1>Edit Serre</h1>
+
+    {# Affichage des messages de succès ou d'erreur (flash messages) #}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    
+    {# Formulaire de modification de la serre #}
+    {{ form_start(form) }}
+        {{ form_row(form.nomSerre) }}
+        {{ form_errors(form.nomSerre) }}
+
+        {{ form_row(form.localisation) }}
+        {{ form_errors(form.localisation) }}
+
+        {{ form_row(form.surface) }}
+        {{ form_errors(form.surface) }}
+
+        {{ form_row(form.etatSerre) }}
+        {{ form_errors(form.etatSerre) }}
+
+        <button type="submit" class="btn btn-success">Mettre à jour</button>
+    {{ form_end(form) }}
+
+    {# Lien pour revenir à la liste des serres #}
+    <a href="{{ path('app_serre_index') }}">Retour à la liste des serres</a>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'agriculteur/base.html.twig' %}
+
+{% block title %}Supprimer une Zone - Espace Agriculteur{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>⚠️ Supprimer une Zone</h1>
+        <p>Confirmation de suppression</p>
+        <div class="mt-3">
+            {% if zone.serre %}
+                <a href="{{ path('app_agriculteur_serre_details', {'id': zone.serre.id}) }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i>
+                    Retour
+                </a>
+            {% else %}
+                <a href="{{ path('app_agriculteur_zones') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i>
+                    Retour
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Confirmation Card -->
+    <div class="content-card">
+        <div class="card-header bg-danger text-white">
+            <h5>🚨 Confirmation de Suppression</h5>
+        </div>
+        <div class="p-4">
+            <div class="alert alert-warning">
+                <h6><i class="bi bi-exclamation-triangle"></i> Êtes-vous sûr ?</h6>
+                <p>Vous êtes sur le point de supprimer la zone <strong>"{{ zone.nomZone }}"</strong></p>
+                <ul class="mb-0">
+                    <li>Cette action est <strong>irréversible</strong></li>
+                    <li>La surface sera libérée dans la serre</li>
+                    <li>Toutes les données seront perdues</li>
+                </ul>
+            </div>
+
+            <!-- Zone Info Simple -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <strong>📏 Nom:</strong><br>
+                    {{ zone.nomZone }}
+                </div>
+                <div class="col-md-3">
+                    <strong>🏷️ Type:</strong><br>
+                    {{ zone.typeZone }}
+                </div>
+                <div class="col-md-3">
+                    <strong>📐 Surface:</strong><br>
+                    {{ zone.superficie }} m²
+                </div>
+                <div class="col-md-3">
+                    <strong>🏠 Serre:</strong><br>
+                    {% if zone.serre %}
+                        {{ zone.serre.nomSerre }}
+                    {% else %}
+                        <span class="text-muted">Non assignée</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="post">
+                <div class="d-flex justify-content-between">
+                    {% if zone.serre %}
+                        <a href="{{ path('app_agriculteur_serre_details', {'id': zone.serre.id}) }}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i>
+                            Annuler
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_agriculteur_zones') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-lg"></i>
+                            Annuler
+                        </a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        Confirmer la suppression
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

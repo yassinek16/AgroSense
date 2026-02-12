@@ -1,0 +1,237 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Paramètres Métier - Administration{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>⚙️ Paramètres Métier</h1>
+        <p>Configuration des règles et paramètres du système</p>
+        <div class="mt-2">
+            <a href="{{ path('app_admin_settings_init') }}" class="btn btn-warning btn-sm">
+                <i class="bi bi-arrow-clockwise"></i>
+                Réinitialiser les paramètres par défaut
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Settings Form -->
+    <form method="post">
+        {% for category, settings in settings %}
+            <div class="content-card mb-4">
+                <div class="card-header">
+                    <h5>{{ category|title }}</h5>
+                </div>
+                <div class="p-3">
+                    <div class="row g-3">
+                        {% for setting in settings %}
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="setting_{{ setting.key }}" class="form-label">
+                                        <strong>{{ setting.key|replace('_', ' ')|title }}</strong>
+                                        {% if setting.description %}
+                                            <small class="text-muted d-block">{{ setting.description }}</small>
+                                        {% endif %}
+                                    </label>
+                                    
+                                    {% if setting.type == 'JSON' %}
+                                        <div class="input-group">
+                                            <input type="text" 
+                                                   id="setting_{{ setting.key }}" 
+                                                   name="{{ setting.key }}" 
+                                                   class="form-control" 
+                                                   value="{{ setting.value }}"
+                                                   readonly>
+                                            <button type="button" 
+                                                    class="btn btn-outline-secondary" 
+                                                    onclick="editJsonSetting('{{ setting.key }}', '{{ setting.value }}')">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Format JSON - Cliquez pour éditer</small>
+                                        
+                                    {% elseif setting.type == 'BOOLEAN' %}
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" 
+                                                   id="setting_{{ setting.key }}" 
+                                                   name="{{ setting.key }}" 
+                                                   value="1" 
+                                                   {{ setting.value == '1' ? 'checked' : '' }}
+                                                   class="form-check-input">
+                                            <label class="form-check-label" for="setting_{{ setting.key }}">
+                                                {{ setting.value == '1' ? 'Activé' : 'Désactivé' }}
+                                            </label>
+                                        </div>
+                                        
+                                    {% elseif setting.type == 'NUMBER' %}
+                                        <input type="number" 
+                                               id="setting_{{ setting.key }}" 
+                                               name="{{ setting.key }}" 
+                                               class="form-control" 
+                                               value="{{ setting.value }}"
+                                               min="0">
+                                        {% if setting.key contains 'SURFACE' %}
+                                            <small class="text-muted">En mètres carrés</small>
+                                        {% endif %}
+                                        
+                                    {% else %}
+                                        <input type="text" 
+                                               id="setting_{{ setting.key }}" 
+                                               name="{{ setting.key }}" 
+                                               class="form-control" 
+                                               value="{{ setting.value }}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="content-card">
+                <div class="text-center py-5">
+                    <i class="bi bi-gear" style="font-size: 3rem; color: #ccc;"></i>
+                    <h5 class="mt-3">Aucun paramètre trouvé</h5>
+                    <p class="text-muted">
+                        Cliquez sur "Réinitialiser les paramètres par défaut" pour initialiser les paramètres système.
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+
+        {% if settings|length > 0 %}
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    Sauvegarder les Paramètres
+                </button>
+            </div>
+        {% endif %}
+    </form>
+
+    <!-- System Information -->
+    <div class="content-card mt-4">
+        <div class="card-header">
+            <h5>📊 Informations Système</h5>
+        </div>
+        <div class="p-3">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h6>🔧 Configuration Technique</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <td>Version Symfony</td>
+                            <td>{{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</td>
+                        </tr>
+                        <tr>
+                            <td>Version PHP</td>
+                            <td>{{ constant('PHP_VERSION') }}</td>
+                        </tr>
+                        <tr>
+                            <td>Environnement</td>
+                            <td>
+                                <span class="badge bg-{{ app.environment == 'prod' ? 'success' : 'warning' }}">
+                                    {{ app.environment|upper }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>📋 Règles Métier Actuelles</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> Surface serre: 10-10000 m²</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Surface zone: 1-5000 m²</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Max zones/serre: 10</li>
+                        <li><i class="bi bi-check-circle text-success"></i> État serre: actif, maintenance, inactive</li>
+                        <li><i class="bi bi-check-circle text-success"></i> État zone: active, inactive, maintenance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JSON Editor Modal -->
+<div class="modal fade" id="jsonEditorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Éditer le paramètre JSON</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="jsonKey" class="form-label">Clé</label>
+                    <input type="text" id="jsonKey" class="form-control" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="jsonValue" class="form-label">Valeur (JSON)</label>
+                    <textarea id="jsonValue" class="form-control" rows="5"></textarea>
+                    <small class="text-muted">Entrez une valeur JSON valide (ex: ["Tomates", "Salades"])</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="saveJsonSetting()">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+let currentJsonKey = '';
+
+function editJsonSetting(key, value) {
+    currentJsonKey = key;
+    document.getElementById('jsonKey').value = key;
+    document.getElementById('jsonValue').value = value;
+    
+    const modal = new bootstrap.Modal(document.getElementById('jsonEditorModal'));
+    modal.show();
+}
+
+function saveJsonSetting() {
+    const value = document.getElementById('jsonValue').value;
+    
+    // Validate JSON
+    try {
+        JSON.parse(value);
+    } catch (e) {
+        alert('Valeur JSON invalide: ' + e.message);
+        return;
+    }
+    
+    // Update the hidden input
+    const input = document.getElementById('setting_' + currentJsonKey);
+    if (input) {
+        input.value = value;
+    }
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('jsonEditorModal')).hide();
+}
+
+// Update checkbox labels on change
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const label = this.nextElementSibling;
+        if (label) {
+            label.textContent = this.checked ? 'Activé' : 'Désactivé';
+        }
+    });
+});
+</script>
+{% endblock %}
