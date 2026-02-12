@@ -1,0 +1,271 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Account - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<div class="register-container">
+    <div class="register-box">
+        <!-- Logo -->
+        <div class="register-header">
+            <img src="{{ asset('images/logo.png') }}" alt="Smart Greenhouse" class="logo">
+            <h1>Create Account</h1>
+            <p class="subtitle">Register for Smart Greenhouse platform</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% for flash_error in app.flashes('verify_email_error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+        {% endfor %}
+
+        {% for flash_msg in app.flashes('error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_msg }}</div>
+        {% endfor %}
+
+        {% for flash_msg in app.flashes('success') %}
+            <div class="alert alert-success" role="alert">{{ flash_msg }}</div>
+        {% endfor %}
+
+        <!-- Registration Form -->
+        {{ form_start(registrationForm, {'attr': {'class': 'register-form', 'novalidate': 'novalidate', 'method': 'POST'}}) }}
+
+            {{ form_errors(registrationForm) }}
+
+            <!-- First Name -->
+            <div class="form-group">
+                {{ form_label(registrationForm.firstName) }}
+                {{ form_widget(registrationForm.firstName) }}
+                {{ form_errors(registrationForm.firstName) }}
+            </div>
+
+            <!-- Last Name -->
+            <div class="form-group">
+                {{ form_label(registrationForm.lastName) }}
+                {{ form_widget(registrationForm.lastName) }}
+                {{ form_errors(registrationForm.lastName) }}
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                {{ form_label(registrationForm.email) }}
+                {{ form_widget(registrationForm.email) }}
+                {{ form_errors(registrationForm.email) }}
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword.first, 'Password') }}
+                {{ form_widget(registrationForm.plainPassword.first) }}
+                {{ form_errors(registrationForm.plainPassword.first) }}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword.second, 'Confirm Password') }}
+                {{ form_widget(registrationForm.plainPassword.second) }}
+                {{ form_errors(registrationForm.plainPassword.second) }}
+            </div>
+
+            <!-- Terms & Conditions -->
+            <div class="form-group form-check">
+                {{ form_widget(registrationForm.agreeTerms) }}
+                {{ form_label(registrationForm.agreeTerms) }}
+                {{ form_errors(registrationForm.agreeTerms) }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-success btn-lg btn-block">Create Account</button>
+
+        {{ form_end(registrationForm) }}
+
+        <!-- Demo Note -->
+        <div class="demo-note">
+            <small>Demo: Fill in the form to create a test account</small>
+        </div>
+
+        <!-- Sign In Link -->
+        <div class="signin-link">
+            Already have an account? <a href="{{ path('app_login') }}">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+        padding: 20px;
+    }
+
+    .register-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 50px 40px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .logo {
+        height: 60px;
+        margin-bottom: 20px;
+    }
+
+    .register-header h1 {
+        font-size: 2rem;
+        color: #1b3a2e;
+        margin-bottom: 10px;
+    }
+
+    .subtitle {
+        color: #6c757d;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .register-form {
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: border-color 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-group input[type="text"]:focus,
+    .form-group input[type="email"]:focus,
+    .form-group input[type="password"]:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #2D6A4F;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .form-check label {
+        margin-bottom: 0;
+        cursor: pointer;
+    }
+
+    .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .btn-success {
+        background: #2D6A4F;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #205f47;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(45, 106, 79, 0.2);
+    }
+
+    .btn-lg {
+        padding: 14px 24px;
+        font-size: 1rem;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .demo-note {
+        text-align: center;
+        color: #6c757d;
+        margin: 20px 0;
+    }
+
+    .signin-link {
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .signin-link a {
+        color: #2D6A4F;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signin-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+        .register-box {
+            padding: 30px 20px;
+        }
+
+        .register-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}

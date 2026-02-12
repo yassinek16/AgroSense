@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Testimonials - Smart Greenhouse{% endblock %}
+
+{% block body %}
+<main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.webp);">
+      <div class="container position-relative">
+        <h1>Testimonials</h1>
+        <p>
+          Home
+          /
+          Testimonials
+        </p>
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li class="current">Testimonials</li>
+          </ol>
+        </nav>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-12 testimonials section" id="testimonials">
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>TESTIMONIALS</h2>
+        <p>Success stories from farmers and growers using Smart Greenhouse technology</p>
+      </div><!-- End Section Title -->
+
+      <div class="testimonial-wrap">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 mb-4 mb-md-4">
+              <div class="testimonial">
+                <img src="assets/img/testimonials/testimonials-1.jpg" alt="Testimonial author">
+                <p class="mt-2">⭐⭐⭐⭐⭐</p>
+                <blockquote>
+                  <p>
+                    "Since implementing Smart Greenhouse technology, my vegetable
+                    yield increased by 40% while reducing water consumption by 50%.
+                    The automation has freed up my time for strategic planning."
+                  </p>
+                </blockquote>
+                <p class="client-name">James Smith</p>
+              </div>
+            </div>
+            <div class="col-md-6 mb-4 mb-md-4">
+              <div class="testimonial">
+                <img src="assets/img/testimonials/testimonials-2.jpg" alt="Testimonial author">
+                <p class="mt-2">⭐⭐⭐⭐⭐</p>
+                <blockquote>
+                  <p>
+                    "Going fully organic was challenging until Smart Greenhouse provided
+                    the monitoring tools I needed. Now I grow premium organic produce year-round
+                    without worrying about crop failures."
+                  </p>
+                </blockquote>
+                <p class="client-name">Kate Smith</p>
+              </div>
+            </div>
+            <div class="col-md-6 mb-4 mb-md-4">
+              <div class="testimonial">
+                <img src="assets/img/testimonials/testimonials-3.jpg" alt="Testimonial author">
+                <p class="mt-2">⭐⭐⭐⭐⭐</p>
+                <blockquote>
+                  <p>
+                    "The marketplace integration feature connected me directly with premium
+                    restaurants in my region. I've tripled my revenue in just eight months
+                    while maintaining complete traceability."
+                  </p>
+                </blockquote>
+                <p class="client-name">Claire Anderson</p>
+              </div>
+            </div>
+            <div class="col-md-6 mb-4 mb-md-4">
+              <div class="testimonial">
+                <img src="assets/img/testimonials/testimonials-4.jpg" alt="Testimonial author">
+                <p class="mt-2">⭐⭐⭐⭐⭐</p>
+                <blockquote>
+                  <p>
+                    "With Smart Greenhouse's predictive analytics, I can plan my harvest
+                    three weeks in advance and reduce inventory losses to nearly zero.
+                    It's given me a competitive advantage I didn't think possible."
+                  </p>
+                </blockquote>
+                <p class="client-name">Dan Smith</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Testimonials Section -->
+
+    <!-- Call To Action Section -->
+    <section id="call-to-action" class="call-to-action section light-background">
+
+      <div class="content">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-6">
+              <h3>Subscribe To Our Newsletter</h3>
+              <p class="opacity-50">
+                Get the latest updates on smart farming techniques, agricultural
+                innovations, best practices for greenhouse management, and exclusive
+                offers from the Smart Greenhouse community.
+              </p>
+            </div>
+            <div class="col-lg-6">
+              <form action="forms/newsletter.php" class="form-subscribe php-email-form">
+                <div class="form-group d-flex align-items-stretch">
+                  <input type="email" name="email" class="form-control h-100" placeholder="Enter your e-mail">
+                  <input type="submit" class="btn btn-secondary px-4" value="Subcribe">
+                </div>
+                <div class="loading">Loading</div>
+                <div class="error-message"></div>
+                <div class="sent-message">
+                  Your subscription request has been sent. Thank you!
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Call To Action Section -->
+
+  </main>
+
+{% endblock %}

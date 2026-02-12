@@ -1,0 +1,137 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <!-- Stats Cards -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;">Total Users</p>
+                            <h3 style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">24,521</h3>
+                            <small style="color: #10b981; font-weight: 500;">↑ 8.2%</small>
+                        </div>
+                        <i class="bi bi-people-fill" style="font-size: 2rem; color: #10b981; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;">Active Now</p>
+                            <h3 style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">1,234</h3>
+                            <small style="color: #10b981; font-weight: 500;">↑ 12.5%</small>
+                        </div>
+                        <i class="bi bi-clock-fill" style="font-size: 2rem; color: #f59e0b; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;">New Today</p>
+                            <h3 style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">156</h3>
+                            <small style="color: #ef4444; font-weight: 500;">↓ 3.1%</small>
+                        </div>
+                        <i class="bi bi-plus-circle-fill" style="font-size: 2rem; color: #ef4444; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;">Premium</p>
+                            <h3 style="margin: 0; font-size: 2rem; font-weight: 700; color: #1f2937;">4,892</h3>
+                            <small style="color: #10b981; font-weight: 500;">↑ 18.7%</small>
+                        </div>
+                        <i class="bi bi-star-fill" style="font-size: 2rem; color: #10b981; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Quick Access</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <a href="{{ path('app_admin_user_index') }}" style="display: block; padding: 20px; background: #f0fdf4; border-radius: 8px; border: 2px solid #d1fae5; text-decoration: none; transition: all 0.3s; text-align: center;">
+                                <i class="bi bi-people-fill" style="font-size: 2rem; color: #10b981; display: block; margin-bottom: 10px;"></i>
+                                <strong style="color: #1f2937; display: block;">Manage Users</strong>
+                                <small style="color: #6b7280;">View & edit users</small>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <a href="#" style="display: block; padding: 20px; background: #fef3c7; border-radius: 8px; border: 2px solid #fde68a; text-decoration: none; transition: all 0.3s; text-align: center; opacity: 0.6; cursor: not-allowed;">
+                                <i class="bi bi-gear-fill" style="font-size: 2rem; color: #f59e0b; display: block; margin-bottom: 10px;"></i>
+                                <strong style="color: #1f2937; display: block;">Settings</strong>
+                                <small style="color: #6b7280;">Coming Soon</small>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <a href="#" style="display: block; padding: 20px; background: #ede9fe; border-radius: 8px; border: 2px solid #ddd6fe; text-decoration: none; transition: all 0.3s; text-align: center; opacity: 0.6; cursor: not-allowed;">
+                                <i class="bi bi-bar-chart-fill" style="font-size: 2rem; color: #a855f7; display: block; margin-bottom: 10px;"></i>
+                                <strong style="color: #1f2937; display: block;">Analytics</strong>
+                                <small style="color: #6b7280;">Coming Soon</small>
+                            </a>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <a href="#" style="display: block; padding: 20px; background: #dbeafe; border-radius: 8px; border: 2px solid #bae6fd; text-decoration: none; transition: all 0.3s; text-align: center; opacity: 0.6; cursor: not-allowed;">
+                                <i class="bi bi-envelope-fill" style="font-size: 2rem; color: #0ea5e9; display: block; margin-bottom: 10px;"></i>
+                                <strong style="color: #1f2937; display: block;">Messages</strong>
+                                <small style="color: #6b7280;">Coming Soon</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="bi bi-info-circle"></i> Getting Started
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p style="color: #6b7280; margin-bottom: 15px;">
+                        Welcome to the Smart Greenhouse Admin Dashboard. This module provides comprehensive user management capabilities:
+                    </p>
+                    <ul style="color: #6b7280; padding-left: 20px;">
+                        <li><strong>User Management:</strong> View, edit, and delete user accounts</li>
+                        <li><strong>Role Assignment:</strong> Manage user roles (User, Editor, Administrator)</li>
+                        <li><strong>Status Control:</strong> Set user account status (Active, Away, Offline, Suspended)</li>
+                        <li><strong>Email Verification:</strong> Track email verification status</li>
+                        <li><strong>Sorting & Pagination:</strong> Easily navigate through user records</li>
+                        <li><strong>Security:</strong> CSRF protection and privilege escalation prevention</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
